@@ -1,0 +1,16 @@
+[
+  {
+    "type": "text",
+    "message": "Welcome to Digital Signage",
+    "cycle": 3
+  },
+  {
+    "type": "image",
+    "url": "Clock.jpg",
+    "cycle": 3
+  },
+{
+    "type": "clock",
+    "cycle": 5
+  }
+]
