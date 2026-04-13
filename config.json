@@ -1,16 +1,27 @@
-[
-  {
-    "type": "text",
-    "message": "Welcome to Digital Signage",
-    "cycle": 3
-  },
-  {
-    "type": "image",
-    "url": "Clock.jpg",
-    "cycle": 3
-  },
 {
-    "type": "clock",
-    "cycle": 5
-  }
-]
+  "title": "Computer Science Department",
+
+  "clock": {
+    "enabled": true,
+    "showSeconds": false,
+    "showDate": true
+  },
+
+  "weather": {
+    "enabled": true,
+    "location": "Denver, CO",
+    "units": "fahrenheit"
+  },
+
+  "announcements": [
+    "Welcome to the Computer Science Department.",
+    "Senior project meeting at 3:00 PM.",
+    "Remember to check assignment deadlines."
+  ],
+
+  "extra": {
+    "message": "This area can be used later for events, images, or news."
+  },
+
+  "footer": "Room for future footer content"
+}

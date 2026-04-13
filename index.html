@@ -3,11 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Digital Signage</title>
+  <title>Digital Signage Dashboard</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="screen">Loading...</div>
+  <div class="dashboard">
+    <header class="header">
+      <h1 id="title">Computer Science Department</h1>
+    </header>
+
+    <section class="clock-panel">
+      <h2>Time</h2>
+      <div class="clock">12:00 PM</div>
+      <div class="date">Monday, April 13, 2026</div>
+    </section>
+
+    <section class="weather-panel">
+      <h2>Weather</h2>
+      <div id="weather-temp" class="weather-temp">Loading...</div>
+      <div id="weather-condition" class="weather-condition">Fetching weather...</div>
+    </section>
+
+    <section class="announcements-panel">
+      <h2>Announcements</h2>
+      <div id="announcements"></div>
+    </section>
+
+    <section class="extra-panel">
+      <h2>Extra</h2>
+      <p>This area can be used later for events, images, news, or reminders.</p>
+    </section>
+
+    <footer class="footer">
+      <p id="footer-text">Room for future footer content</p>
+    </footer>
+  </div>
 
   <script src="app.js"></script>
 </body>
