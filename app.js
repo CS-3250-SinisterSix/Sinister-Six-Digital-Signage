@@ -1,3 +1,6 @@
+let newsHeadlines = [];
+let currentHeadlineIndex = 0;
+
 async function loadConfig() {
   try {
     const response = await fetch("config.json");
@@ -10,16 +13,6 @@ async function loadConfig() {
 
     // Update title
     document.getElementById("title").textContent = config.title;
-
-    // Update announcements
-    const announcementsContainer = document.getElementById("announcements");
-    announcementsContainer.innerHTML = "";
-
-    config.announcements.forEach(item => {
-      const p = document.createElement("p");
-      p.textContent = item;
-      announcementsContainer.appendChild(p);
-    });
 
     // Update footer
     document.getElementById("footer-text").textContent = config.footer;
@@ -56,10 +49,12 @@ function updateClock() {
 
 
 // ================= WEATHER DISPLAY =================
-function updateWeatherDisplay(temp, condition) {
+function updateWeatherDisplay(location, temp, condition) {
+  const locationElement = document.getElementById("weather-location");
   const tempElement = document.getElementById("weather-temp");
   const conditionElement = document.getElementById("weather-condition");
 
+  locationElement.textContent = location;
   tempElement.textContent = temp;
   conditionElement.textContent = condition;
 }
@@ -116,13 +111,19 @@ async function getCoordinates(locationName) {
 
   return {
     latitude: data.results[0].latitude,
-    longitude: data.results[0].longitude
+    longitude: data.results[0].longitude,
+    name: data.results[0].name,
+    admin1: data.results[0].admin1,
+    country: data.results[0].country
   };
 }
 
 async function fetchWeather() {
   try {
     const coords = await getCoordinates(WEATHER_LOCATION);
+    const locationDisplay = coords.admin1
+  ? `${coords.name}, ${coords.admin1}`
+  : `${coords.name}, ${coords.country}`;
 
     const response = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`
@@ -136,19 +137,86 @@ async function fetchWeather() {
     const weatherCode = data.current.weather_code;
     const description = getWeatherDescription(weatherCode);
 
-    updateWeatherDisplay(`${temperature}°F`, description);
+    updateWeatherDisplay(locationDisplay, `${temperature}°F`, description);
 
   } catch (error) {
     console.error("Weather error:", error);
-    updateWeatherDisplay("--°F", "Weather unavailable");
+    updateWeatherDisplay("Location unavailable", "--°F", "Weather unavailable");
   }
 }
 
+function showHeadline() {
+  const container = document.getElementById("news-container");
+
+  if (newsHeadlines.length === 0) {
+    container.innerHTML = "<p class='headline'>No news available</p>";
+    return;
+  }
+
+  container.innerHTML = "";
+
+  const p = document.createElement("p");
+  p.className = "headline";
+  p.textContent = "• " + newsHeadlines[currentHeadlineIndex];
+  container.appendChild(p);
+}
+
+function rotateHeadline() {
+  const headlineElement = document.querySelector("#news-container .headline");
+
+  if (!headlineElement || newsHeadlines.length === 0) {
+    return;
+  }
+
+  headlineElement.classList.add("fade-out");
+
+  setTimeout(() => {
+    currentHeadlineIndex = (currentHeadlineIndex + 1) % newsHeadlines.length;
+    showHeadline();
+  }, 800);
+}
+
+async function fetchNews() {
+  const rssUrl = "https://feeds.bbci.co.uk/news/rss.xml";
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+
+  try {
+    const response = await fetch(proxyUrl);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch RSS feed");
+    }
+
+    const data = await response.json();
+    const xmlText = data.contents;
+
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+    const items = xmlDoc.querySelectorAll("item");
+
+    newsHeadlines = Array.from(items)
+      .slice(0, 5)
+      .map((item) => item.querySelector("title")?.textContent || "No title");
+
+    currentHeadlineIndex = 0;
+    showHeadline();
+  } catch (error) {
+    console.error("News error:", error);
+    document.getElementById("news-container").innerHTML =
+      "<p>News unavailable</p>";
+  }
+}
 
 // ================= RUN APP =================
 updateClock();
 setInterval(updateClock, 1000);
 
 fetchWeather();
+setInterval(fetchWeather, 15 * 60 * 1000); // Refresh weather every 15 minutes
 
 loadConfig();
+
+fetchNews();
+setInterval(fetchNews, 15 * 60 * 1000); // Refresh news every 15 minutes
+setInterval(rotateHeadline, 5000); // Rotate headline every 5 seconds

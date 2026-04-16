@@ -93,3 +93,34 @@ body {
 h2 {
   margin-bottom: 12px;
 }
+
+#news-container {
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+.weather-location {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  opacity: 0.85;
+}
+
+.news-source {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: 12px;
+}
+
+#news-container {
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+.headline {
+  opacity: 1;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.headline.fade-out {
+  opacity: 0;
+}
