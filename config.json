@@ -22,7 +22,7 @@
     "message": "This area can be used later for events, images, or news."
   },
   "footer": "Room for future footer content",
-  "backgroundImage": "Clock.jpg",
+  "backgroundImage": "",
 
   "backgrounds": {
     "clock": ["Image1.jpg", "Image2.jpg", "Image1.jpg"],
