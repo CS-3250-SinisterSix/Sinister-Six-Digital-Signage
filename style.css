@@ -14,10 +14,10 @@ body {
 .dashboard {
   display: grid;
   grid-template-areas:
-    "header header"
-    "clock weather"
-    "announcements extra"
-    "footer footer";
+    'header header'
+    'clock weather'
+    'announcements extra'
+    'footer footer';
   grid-template-columns: 2fr 1fr;
   grid-template-rows: auto 2fr 2fr auto;
   gap: 16px;
@@ -38,9 +38,11 @@ body {
 .announcements-panel,
 .extra-panel,
 .footer {
-  background-color: #1e1e1e;
   border-radius: 12px;
   padding: 20px;
+  background-color: rgba(0, 0, 0, 0.4);
+  background-blend-mode: overlay;
+  transition: background-image 1s ease-in-out;
 }
 
 .clock-panel {
