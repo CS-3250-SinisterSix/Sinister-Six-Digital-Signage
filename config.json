@@ -1,18 +1,15 @@
 {
   "title": "Computer Science Department",
-
   "clock": {
     "enabled": true,
     "showSeconds": false,
     "showDate": true
   },
-
   "weather": {
     "enabled": true,
     "location": "Denver, CO",
     "units": "fahrenheit"
   },
-
   "rss": {
     "enabled": true,
     "url": "https://feeds.bbci.co.uk/news/rss.xml",
@@ -20,7 +17,6 @@
     "maxItems": 5,
     "cycle": 6
   },
-
   "announcements": {
     "items": [
       "Welcome to the Computer Science Department.",
@@ -29,12 +25,20 @@
     ],
     "cycle": 8
   },
-
   "images": {
     "enabled": true,
     "cycle": 10,
     "items": [{ "url": "Clock.jpg", "caption": "Campus Clock" }]
   },
-
-  "footer": "Room for future footer content"
+  "footer": "Room for future footer content",
+  "backgroundImage": "",
+  "backgrounds": {
+    "clock": ["Image1.jpg", "Image2.jpg", "Image1.jpg"],
+    "weather": ["Image2.jpg", "Image1.jpg"],
+    "announcements": ["Image1.jpg", "Image2.jpg"],
+    "news": ["Image2.jpg"],
+    "images": ["Image1.jpg"],
+    "footer": ["Image1.jpg", "Image2.jpg"],
+    "imageTime": 10
+  }
 }

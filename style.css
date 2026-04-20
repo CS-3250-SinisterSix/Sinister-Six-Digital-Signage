@@ -40,9 +40,11 @@ body {
 .announcements-panel,
 .images-panel,
 .footer {
-  background-color: #1e1e1e;
   border-radius: 12px;
   padding: 20px;
+  background-color: rgba(0, 0, 0, 0.4);
+  background-blend-mode: overlay;
+  transition: background-image 1s ease-in-out;
 }
 
 .clock-panel {

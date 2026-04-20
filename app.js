@@ -61,6 +61,53 @@ async function loadConfig() {
     // Update footer
     document.getElementById('footer-text').textContent = config.footer;
 
+    // Full-page background image
+    if (config.backgroundImage) {
+      document.body.style.backgroundImage = `url(${config.backgroundImage})`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+    }
+
+    // Per-panel background image slideshows
+    if (config.backgrounds) {
+      const startSlideshow = (
+        selector,
+        images,
+        interval = config.backgrounds?.imageTime ?? 10
+      ) => {
+        if (!images || images.length === 0) return;
+
+        const el = document.querySelector(selector);
+        if (!el) return;
+
+        let index = 0;
+
+        const applyImage = () => {
+          el.style.backgroundImage = `url(${images[index]})`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          el.style.backgroundRepeat = 'no-repeat';
+        };
+
+        // initial image
+        applyImage();
+
+        // rotate images
+        setInterval(() => {
+          index = (index + 1) % images.length;
+          applyImage();
+        }, interval * 1000);
+      };
+
+      startSlideshow('.clock-panel', config.backgrounds.clock);
+      startSlideshow('.weather-panel', config.backgrounds.weather);
+      startSlideshow('.announcements-panel', config.backgrounds.announcements);
+      startSlideshow('.news-panel', config.backgrounds.news);
+      startSlideshow('.images-panel', config.backgrounds.images);
+      startSlideshow('.footer', config.backgrounds.footer);
+    }
+
     // Start RSS news cycling
     if (config.rss && config.rss.enabled) {
       const sourceEl = document.getElementById('news-source');
