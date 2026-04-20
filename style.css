@@ -14,12 +14,13 @@ body {
 .dashboard {
   display: grid;
   grid-template-areas:
-    "header header"
-    "clock weather"
-    "announcements extra"
-    "footer footer";
+    'header header'
+    'clock weather'
+    'news announcements'
+    'images images'
+    'footer footer';
   grid-template-columns: 2fr 1fr;
-  grid-template-rows: auto 2fr 2fr auto;
+  grid-template-rows: auto 2fr 2fr 2fr auto;
   gap: 16px;
   height: 100vh;
   padding: 16px;
@@ -35,8 +36,9 @@ body {
 
 .clock-panel,
 .weather-panel,
+.news-panel,
 .announcements-panel,
-.extra-panel,
+.images-panel,
 .footer {
   background-color: #1e1e1e;
   border-radius: 12px;
@@ -55,12 +57,19 @@ body {
   grid-area: weather;
 }
 
+.news-panel {
+  grid-area: news;
+}
+
 .announcements-panel {
   grid-area: announcements;
 }
 
-.extra-panel {
-  grid-area: extra;
+.images-panel {
+  grid-area: images;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .footer {
@@ -90,19 +99,14 @@ body {
   margin-top: 10px;
 }
 
-h2 {
-  margin-bottom: 12px;
-}
-
-#news-container {
-  font-size: 1.3rem;
-  line-height: 1.5;
-}
-
 .weather-location {
   font-size: 1.1rem;
   margin-top: 10px;
   opacity: 0.85;
+}
+
+h2 {
+  margin-bottom: 12px;
 }
 
 .news-source {
@@ -116,11 +120,34 @@ h2 {
   line-height: 1.5;
 }
 
-.headline {
+#announcements-container {
+  font-size: 1.3rem;
+  line-height: 1.5;
+}
+
+/* ================= CYCLING TRANSITIONS ================= */
+
+.cycle-item {
   opacity: 1;
   transition: opacity 0.8s ease-in-out;
 }
 
-.headline.fade-out {
+.cycle-item.fade-out {
   opacity: 0;
+}
+
+/* ================= IMAGE CYCLING ================= */
+
+.images-panel img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.image-caption {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-top: 8px;
+  text-align: center;
 }

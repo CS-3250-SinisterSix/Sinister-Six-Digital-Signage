@@ -13,14 +13,27 @@
     "units": "fahrenheit"
   },
 
-  "announcements": [
-    "Welcome to the Computer Science Department.",
-    "Senior project meeting at 3:00 PM.",
-    "Remember to check assignment deadlines."
-  ],
+  "rss": {
+    "enabled": true,
+    "url": "https://feeds.bbci.co.uk/news/rss.xml",
+    "source": "BBC News",
+    "maxItems": 5,
+    "cycle": 6
+  },
 
-  "extra": {
-    "message": "This area can be used later for events, images, or news."
+  "announcements": {
+    "items": [
+      "Welcome to the Computer Science Department.",
+      "Senior project meeting at 3:00 PM.",
+      "Remember to check assignment deadlines."
+    ],
+    "cycle": 8
+  },
+
+  "images": {
+    "enabled": true,
+    "cycle": 10,
+    "items": [{ "url": "Clock.jpg", "caption": "Campus Clock" }]
   },
 
   "footer": "Room for future footer content"
