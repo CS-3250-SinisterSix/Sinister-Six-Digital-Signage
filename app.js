@@ -17,10 +17,13 @@ async function loadConfig() {
     // Update footer
     document.getElementById("footer-text").textContent = config.footer;
 
+
   } catch (error) {
     console.error("Config error:", error);
   }
 }
+
+
 
 // ================= CLOCK =================
 function updateClock() {
@@ -53,6 +56,8 @@ function updateWeatherDisplay(location, temp, condition) {
   const locationElement = document.getElementById("weather-location");
   const tempElement = document.getElementById("weather-temp");
   const conditionElement = document.getElementById("weather-condition");
+
+
 
   locationElement.textContent = location;
   tempElement.textContent = temp;
@@ -94,19 +99,41 @@ function getWeatherDescription(code) {
 
 
 // ================= WEATHER FETCH =================
-const WEATHER_LOCATION = "Denver";
+
+
+
+async function handleSubmit() {
+  const cityInput = document.getElementById('cityName').value.trim();
+  if (!cityInput) return;
+  let CITY_LOCATION;
+  let data;
+  try {
+    CITY_LOCATION = cityInput;
+    document.getElementById('submitBtn').style.color = 'green';
+  } catch (err) {
+    CITY_LOCATION = "Denver"; // Fallback location
+    document.getElementById('submitBtn').style.color = 'orange';
+  }
+  data = { city: CITY_LOCATION };
+  localStorage.setItem("weatherCity", JSON.stringify(data));
+  fetchWeather();
+}
+
 
 async function getCoordinates(locationName) {
   const response = await fetch(
     `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locationName)}&count=1`
   );
 
-  if (!response.ok) throw new Error("Failed to fetch location data.");
-
+  if (!response.ok) {
+    throw new Error("Failed to fetch location data.");
+    document.getElementById('updateBtn').style.color = 'red';
+  }
   const data = await response.json();
 
   if (!data.results || data.results.length === 0) {
     throw new Error("Location not found.");
+    document.getElementById('updateBtn').style.color = 'orange';
   }
 
   return {
@@ -118,7 +145,21 @@ async function getCoordinates(locationName) {
   };
 }
 
+/*async function getGeoCoords() {
+if ("geolocation" in navigator) {
+  navigator.geolocation.getCurrentPosition((position) => {
+  doSomething(position.coords.latitude, position.coords.longitude);
+});
+} else {
+  console.error("Geolocation not supported");
+}
+
+}*/
+
+
 async function fetchWeather() {
+  WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
+  
   try {
     const coords = await getCoordinates(WEATHER_LOCATION);
     const locationDisplay = coords.admin1
@@ -130,6 +171,7 @@ async function fetchWeather() {
     );
 
     if (!response.ok) throw new Error("Failed to fetch weather data.");
+
 
     const data = await response.json();
 
