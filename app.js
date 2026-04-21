@@ -178,16 +178,6 @@ async function getCoordinates(locationName) {
   };
 }
 
-/*async function getGeoCoords() {
-if ("geolocation" in navigator) {
-  navigator.geolocation.getCurrentPosition((position) => {
-  doSomething(position.coords.latitude, position.coords.longitude);
-});
-} else {
-  console.error("Geolocation not supported");
-}
-
-}*/
 
 
 async function fetchWeather() {
@@ -195,6 +185,8 @@ async function fetchWeather() {
   
   try {
     const coords = await getCoordinates(WEATHER_LOCATION);
+    //const coords = await getGeoCoords();
+
     const locationDisplay = coords.admin1
       ? `${coords.name}, ${coords.admin1}`
       : `${coords.name}, ${coords.country}`;
@@ -287,6 +279,10 @@ setInterval(updateClock, 1000);
 
 fetchWeather();
 setInterval(fetchWeather, 15 * 60 * 1000); // Refresh weather every 15 minutes
+
+async function handleUpdate() {
+  fetchWeather();
+}
 
 loadConfig();
 
