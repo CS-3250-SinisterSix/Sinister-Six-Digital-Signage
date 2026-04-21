@@ -1,5 +1,49 @@
-let newsHeadlines = [];
-let currentHeadlineIndex = 0;
+// ================= GENERIC CONTENT CYCLER =================
+
+/**
+ * Creates a cycling rotator for any list of items in a container.
+ * Shows one item at a time with a fade transition.
+ *
+ * @param {string} containerId - DOM element ID to render into
+ * @param {Array} items - Array of items to cycle through
+ * @param {Function} renderFn - Function that takes an item and returns a DOM element
+ * @param {number} cycleSec - Seconds between rotations
+ * @returns {object} Controller with stop() method
+ */
+function startCycler(containerId, items, renderFn, cycleSec) {
+  const container = document.getElementById(containerId);
+  let index = 0;
+
+  function show() {
+    container.innerHTML = '';
+    const el = renderFn(items[index]);
+    el.classList.add('cycle-item');
+    container.appendChild(el);
+  }
+
+  function next() {
+    const current = container.querySelector('.cycle-item');
+    if (current) {
+      current.classList.add('fade-out');
+    }
+
+    setTimeout(() => {
+      index = (index + 1) % items.length;
+      show();
+    }, 800);
+  }
+
+  show();
+  const intervalId = setInterval(next, cycleSec * 1000);
+
+  return {
+    stop() {
+      clearInterval(intervalId);
+    },
+  };
+}
+
+// ================= CONFIG =================
 
 async function loadConfig() {
   try {
@@ -17,6 +61,7 @@ async function loadConfig() {
     // Update footer
     document.getElementById('footer-text').textContent = config.footer;
 
+    // Full-page background image
     if (config.backgroundImage) {
       document.body.style.backgroundImage = `url(${config.backgroundImage})`;
       document.body.style.backgroundSize = 'cover';
@@ -24,8 +69,13 @@ async function loadConfig() {
       document.body.style.backgroundRepeat = 'no-repeat';
     }
 
+    // Per-panel background image slideshows
     if (config.backgrounds) {
-      const startSlideshow = (selector, images, interval = config.backgrounds?.imageTime ?? 10) => {
+      const startSlideshow = (
+        selector,
+        images,
+        interval = config.backgrounds?.imageTime ?? 10
+      ) => {
         if (!images || images.length === 0) return;
 
         const el = document.querySelector(selector);
@@ -53,8 +103,78 @@ async function loadConfig() {
       startSlideshow('.clock-panel', config.backgrounds.clock);
       startSlideshow('.weather-panel', config.backgrounds.weather);
       startSlideshow('.announcements-panel', config.backgrounds.announcements);
-      startSlideshow('.extra-panel', config.backgrounds.extra);
+      startSlideshow('.news-panel', config.backgrounds.news);
+      startSlideshow('.images-panel', config.backgrounds.images);
       startSlideshow('.footer', config.backgrounds.footer);
+    }
+
+    // Start RSS news cycling
+    if (config.rss && config.rss.enabled) {
+      const sourceEl = document.getElementById('news-source');
+      if (sourceEl && config.rss.source) {
+        sourceEl.textContent = config.rss.source;
+      }
+      fetchNews(
+        config.rss.url,
+        config.rss.maxItems || 5,
+        config.rss.cycle || 6
+      );
+    }
+
+    // Start announcements cycling
+    if (config.announcements && config.announcements.items) {
+      const items = config.announcements.items;
+      const cycle = config.announcements.cycle || 8;
+
+      if (items.length > 0) {
+        startCycler(
+          'announcements-container',
+          items,
+          function (text) {
+            const p = document.createElement('p');
+            p.textContent = text;
+            return p;
+          },
+          cycle
+        );
+      }
+    }
+
+    // Start image cycling
+    if (config.images && config.images.enabled && config.images.items) {
+      const items = config.images.items;
+      const cycle = config.images.cycle || 10;
+
+      if (items.length > 0) {
+        startCycler(
+          'images-container',
+          items,
+          function (item) {
+            const wrapper = document.createElement('div');
+
+            const img = document.createElement('img');
+            img.src = item.url;
+            img.alt = item.caption || 'Signage image';
+            img.onerror = function () {
+              img.style.display = 'none';
+              const fallback = document.createElement('p');
+              fallback.textContent = 'Image not available';
+              wrapper.appendChild(fallback);
+            };
+            wrapper.appendChild(img);
+
+            if (item.caption) {
+              const caption = document.createElement('p');
+              caption.className = 'image-caption';
+              caption.textContent = item.caption;
+              wrapper.appendChild(caption);
+            }
+
+            return wrapper;
+          },
+          cycle
+        );
+      }
     }
   } catch (error) {
     console.error('Config error:', error);
@@ -62,6 +182,7 @@ async function loadConfig() {
 }
 
 // ================= CLOCK =================
+
 function updateClock() {
   const clockElement = document.querySelector('.clock');
   const dateElement = document.querySelector('.date');
@@ -87,6 +208,7 @@ function updateClock() {
 }
 
 // ================= WEATHER DISPLAY =================
+
 function updateWeatherDisplay(location, temp, condition) {
   const locationElement = document.getElementById('weather-location');
   const tempElement = document.getElementById('weather-temp');
@@ -98,6 +220,7 @@ function updateWeatherDisplay(location, temp, condition) {
 }
 
 // ================= WEATHER CODE MAP =================
+
 function getWeatherDescription(code) {
   const weatherCodes = {
     0: 'Clear sky',
@@ -130,6 +253,7 @@ function getWeatherDescription(code) {
 }
 
 // ================= WEATHER FETCH =================
+
 const WEATHER_LOCATION = 'Denver';
 
 async function getCoordinates(locationName) {
@@ -180,78 +304,55 @@ async function fetchWeather() {
   }
 }
 
-function showHeadline() {
-  const container = document.getElementById('news-container');
+// ================= RSS NEWS =================
 
-  if (newsHeadlines.length === 0) {
-    container.innerHTML = "<p class='headline'>No news available</p>";
-    return;
-  }
-
-  container.innerHTML = '';
-
-  const p = document.createElement('p');
-  p.className = 'headline';
-  p.textContent = '• ' + newsHeadlines[currentHeadlineIndex];
-  container.appendChild(p);
-}
-
-function rotateHeadline() {
-  const headlineElement = document.querySelector('#news-container .headline');
-
-  if (!headlineElement || newsHeadlines.length === 0) {
-    return;
-  }
-
-  headlineElement.classList.add('fade-out');
-
-  setTimeout(() => {
-    currentHeadlineIndex = (currentHeadlineIndex + 1) % newsHeadlines.length;
-    showHeadline();
-  }, 800);
-}
-
-async function fetchNews() {
-  const rssUrl = 'https://feeds.bbci.co.uk/news/rss.xml';
+function fetchNews(rssUrl, maxItems, cycleSec) {
   const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
 
-  try {
-    const response = await fetch(proxyUrl);
+  fetch(proxyUrl)
+    .then(function (response) {
+      if (!response.ok) {
+        throw new Error('Failed to fetch RSS feed');
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(data.contents, 'text/xml');
+      const items = xmlDoc.querySelectorAll('item');
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch RSS feed');
-    }
+      const headlines = Array.from(items)
+        .slice(0, maxItems)
+        .map(function (item) {
+          return item.querySelector('title')?.textContent || 'No title';
+        });
 
-    const data = await response.json();
-    const xmlText = data.contents;
-
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-
-    const items = xmlDoc.querySelectorAll('item');
-
-    newsHeadlines = Array.from(items)
-      .slice(0, 5)
-      .map((item) => item.querySelector('title')?.textContent || 'No title');
-
-    currentHeadlineIndex = 0;
-    showHeadline();
-  } catch (error) {
-    console.error('News error:', error);
-    document.getElementById('news-container').innerHTML =
-      '<p>News unavailable</p>';
-  }
+      if (headlines.length > 0) {
+        startCycler(
+          'news-container',
+          headlines,
+          function (text) {
+            const p = document.createElement('p');
+            p.textContent = '\u2022 ' + text;
+            return p;
+          },
+          cycleSec
+        );
+      }
+    })
+    .catch(function (error) {
+      console.error('News error:', error);
+      document.getElementById('news-container').innerHTML =
+        '<p>News unavailable</p>';
+    });
 }
 
 // ================= RUN APP =================
+
 updateClock();
 setInterval(updateClock, 1000);
 
 fetchWeather();
-setInterval(fetchWeather, 15 * 60 * 1000); // Refresh weather every 15 minutes
+setInterval(fetchWeather, 15 * 60 * 1000);
 
 loadConfig();
-
-fetchNews();
-setInterval(fetchNews, 15 * 60 * 1000); // Refresh news every 15 minutes
-setInterval(rotateHeadline, 5000); // Rotate headline every 5 seconds

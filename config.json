@@ -10,25 +10,34 @@
     "location": "Denver, CO",
     "units": "fahrenheit"
   },
+  "rss": {
+    "enabled": true,
+    "url": "https://feeds.bbci.co.uk/news/rss.xml",
+    "source": "BBC News",
+    "maxItems": 5,
+    "cycle": 6
+  },
   "announcements": {
-    "Text": [
+    "items": [
       "Welcome to the Computer Science Department.",
       "Senior project meeting at 3:00 PM.",
       "Remember to check assignment deadlines."
-    ]
+    ],
+    "cycle": 8
   },
-
-  "extra": {
-    "message": "This area can be used later for events, images, or news."
+  "images": {
+    "enabled": true,
+    "cycle": 10,
+    "items": [{ "url": "Clock.jpg", "caption": "Campus Clock" }]
   },
   "footer": "Room for future footer content",
   "backgroundImage": "",
-
   "backgrounds": {
     "clock": ["Image1.jpg", "Image2.jpg", "Image1.jpg"],
     "weather": ["Image2.jpg", "Image1.jpg"],
     "announcements": ["Image1.jpg", "Image2.jpg"],
-    "extra": ["Image2.jpg"],
+    "news": ["Image2.jpg"],
+    "images": ["Image1.jpg"],
     "footer": ["Image1.jpg", "Image2.jpg"],
     "imageTime": 10
   }
