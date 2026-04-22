@@ -143,10 +143,8 @@ async function handleSubmit() {
   let data;
   try {
     CITY_LOCATION = cityInput;
-    document.getElementById('submitBtn').style.color = 'green';
   } catch (err) {
-    CITY_LOCATION = "Denver"; // Fallback location
-    document.getElementById('submitBtn').style.color = 'orange';
+    throw new Error("Invalid city name.");
   }
   data = { city: CITY_LOCATION };
   localStorage.setItem("weatherCity", JSON.stringify(data));
