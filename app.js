@@ -139,8 +139,7 @@ function getWeatherDescription(code) {
 async function handleSubmit() {
   const cityInput = document.getElementById('cityName').value.trim();
   if (!cityInput) return;
-  let CITY_LOCATION;
-  let data;
+  let CITY_LOCATION, data;
   try {
     CITY_LOCATION = cityInput;
   } catch (err) {
@@ -151,6 +150,28 @@ async function handleSubmit() {
   fetchWeather();
 }
 
+
+async function getGeoCoords() {
+  let glat, glon, coord;
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        lat = String(position.coords.latitude);
+        lon = String(position.coords.longitude);
+        console.log(`Latitude: ${lat}, Longitude: ${lon}`);
+      },
+      (error) => {
+        console.error(`Error code: ${error.code} - ${error.message}`);
+      }
+    );
+  } else {
+    console.log("Geolocation is not supported by this browser.");
+  }
+    coord = { clat: lat, clon: lon };
+    localStorage.setItem("geoCoords", JSON.stringify(coord));
+    return { latitude: lat, longitude: lon };
+    //fetchWeather();
+}
 
 async function getCoordinates(locationName) {
   const response = await fetch(
@@ -177,18 +198,43 @@ async function getCoordinates(locationName) {
   };
 }
 
+async function geocodeLatLng(lat, lon) {
+  try {
+    const response = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+    );
+    const data = await response.json();
+  let location = data.principalSubdivision
+    ? `${data.city}, ${data.principalSubdivision}`
+    : `${data.city}, ${data.countryName}`;
+  console.log(`Geocoded location: ${location}`);
+  localStorage.setItem("location", location);
+  return {
+    city: data.city,
+    principalSubdivision: data.principalSubdivision,
+    countryName: data.countryName,
+  };
+  } catch (error) {
+    console.error('Geocoding error:', error);
+  }
+  
+}
+
 
 
 async function fetchWeather() {
-  WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
+  //WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
   
   try {
-    const coords = await getCoordinates(WEATHER_LOCATION);
-    //const coords = await getGeoCoords();
+    //const coords = await getCoordinates(WEATHER_LOCATION);
+    let coords = await getGeoCoords();
+    let location = await geocodeLatLng(coords.latitude, coords.longitude);
+    //const latitude = await JSON.parse(localStorage.getItem("geoCoords")).clat;
+    //const longitude = await JSON.parse(localStorage.getItem("geoCoords")).clon;
 
-    const locationDisplay = coords.admin1
-      ? `${coords.name}, ${coords.admin1}`
-      : `${coords.name}, ${coords.country}`;
+    let locationDisplay = location.principalSubdivision
+    ? `${location.city}, ${location.principalSubdivision}`
+    : `${location.city}, ${location.countryName}`;
 
     const response = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`
@@ -280,6 +326,7 @@ fetchWeather();
 setInterval(fetchWeather, 15 * 60 * 1000); // Refresh weather every 15 minutes
 
 async function handleUpdate() {
+  getGeoCoords();
   fetchWeather();
 }
 
