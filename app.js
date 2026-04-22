@@ -137,6 +137,7 @@ function getWeatherDescription(code) {
 
 
 async function handleSubmit() {
+  if (!document.getElementById('Geolocation').checked) {
   const cityInput = document.getElementById('cityName').value.trim();
   if (!cityInput) return;
   let CITY_LOCATION, data;
@@ -148,8 +149,8 @@ async function handleSubmit() {
   data = { city: CITY_LOCATION };
   localStorage.setItem("weatherCity", JSON.stringify(data));
   fetchWeather();
+  }
 }
-
 
 async function getGeoCoords() {
   let glat, glon, coord;
@@ -194,7 +195,7 @@ async function getCoordinates(locationName) {
     longitude: data.results[0].longitude,
     name: data.results[0].name,
     admin1: data.results[0].admin1,
-    country: data.results[0].country,
+    country: data.results[0].country_code,
   };
 }
 
@@ -206,13 +207,13 @@ async function geocodeLatLng(lat, lon) {
     const data = await response.json();
   let location = data.principalSubdivision
     ? `${data.city}, ${data.principalSubdivision}`
-    : `${data.city}, ${data.countryName}`;
+    : `${data.city}, ${data.countryCode}`;
   console.log(`Geocoded location: ${location}`);
   localStorage.setItem("location", location);
   return {
     city: data.city,
     principalSubdivision: data.principalSubdivision,
-    countryName: data.countryName,
+    countryCode: data.countryCode,
   };
   } catch (error) {
     console.error('Geocoding error:', error);
@@ -223,18 +224,27 @@ async function geocodeLatLng(lat, lon) {
 
 
 async function fetchWeather() {
-  //WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
   
+  WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
   try {
-    //const coords = await getCoordinates(WEATHER_LOCATION);
-    let coords = await getGeoCoords();
-    let location = await geocodeLatLng(coords.latitude, coords.longitude);
-    //const latitude = await JSON.parse(localStorage.getItem("geoCoords")).clat;
-    //const longitude = await JSON.parse(localStorage.getItem("geoCoords")).clon;
+    let coords;
+    let locationDisplay;
+    let location;
+    if(document.getElementById('Geolocation').checked) {
+      coords = await getGeoCoords();
+      location = await geocodeLatLng(coords.latitude, coords.longitude);
 
-    let locationDisplay = location.principalSubdivision
-    ? `${location.city}, ${location.principalSubdivision}`
-    : `${location.city}, ${location.countryName}`;
+      locationDisplay = location.principalSubdivision
+      ? `${location.city}, ${location.principalSubdivision}, ${location.countryCode}`
+      : `${location.city}, ${location.countryCode}`;
+    } else {
+      
+      coords = await getCoordinates(WEATHER_LOCATION);
+    
+      locationDisplay = coords.admin1
+      ? `${coords.name}, ${coords.admin1}, ${coords.country}`
+      : `${coords.name}, ${coords.country}`;
+    }
 
     const response = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`
@@ -323,7 +333,7 @@ updateClock();
 setInterval(updateClock, 1000);
 
 fetchWeather();
-setInterval(fetchWeather, 15 * 60 * 1000); // Refresh weather every 15 minutes
+setInterval(fetchWeather, 5 * 60 * 1000); // Refresh weather every 5 minutes
 
 async function handleUpdate() {
   getGeoCoords();
