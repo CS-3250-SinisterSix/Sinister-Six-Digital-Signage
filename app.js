@@ -67,7 +67,6 @@ async function loadConfig() {
 function updateClock() {
   const clockElement = document.querySelector('.clock');
   const dateElement = document.querySelector('.date');
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const now = new Date();
 
@@ -134,8 +133,6 @@ function getWeatherDescription(code) {
 
 // ================= WEATHER FETCH =================
 
-
-
 async function handleSubmit() {
   if (!document.getElementById('Geolocation').checked) {
   const cityInput = document.getElementById('cityName').value.trim();
@@ -150,28 +147,6 @@ async function handleSubmit() {
   localStorage.setItem("weatherCity", JSON.stringify(data));
   fetchWeather();
   }
-}
-
-async function getGeoCoords() {
-  let glat, glon, coord;
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        lat = String(position.coords.latitude);
-        lon = String(position.coords.longitude);
-        console.log(`Latitude: ${lat}, Longitude: ${lon}`);
-      },
-      (error) => {
-        console.error(`Error code: ${error.code} - ${error.message}`);
-      }
-    );
-  } else {
-    console.log("Geolocation is not supported by this browser.");
-  }
-    coord = { clat: lat, clon: lon };
-    localStorage.setItem("geoCoords", JSON.stringify(coord));
-    return { latitude: lat, longitude: lon };
-    //fetchWeather();
 }
 
 async function getCoordinates(locationName) {
@@ -199,6 +174,25 @@ async function getCoordinates(locationName) {
   };
 }
 
+async function getGeoCoords() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        lat = String(position.coords.latitude);
+        lon = String(position.coords.longitude);
+      },
+      (error) => {
+        throw new Error("Failed to get geolocation.");
+      }
+    );
+  } else {
+    console.log("Geolocation is not supported by this browser.");
+  }
+    coord = { clat: lat, clon: lon };
+    localStorage.setItem("geoCoords", JSON.stringify(coord));
+    return { latitude: lat, longitude: lon };
+}
+
 async function geocodeLatLng(lat, lon) {
   try {
     const response = await fetch(
@@ -208,7 +202,7 @@ async function geocodeLatLng(lat, lon) {
   let location = data.principalSubdivision
     ? `${data.city}, ${data.principalSubdivision}`
     : `${data.city}, ${data.countryCode}`;
-  console.log(`Geocoded location: ${location}`);
+ 
   localStorage.setItem("location", location);
   return {
     city: data.city,
@@ -216,16 +210,14 @@ async function geocodeLatLng(lat, lon) {
     countryCode: data.countryCode,
   };
   } catch (error) {
-    console.error('Geocoding error:', error);
+    throw new Error("Failed to reverse geocode coordinates.");
   }
   
 }
 
 
-
 async function fetchWeather() {
   
-  WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
   try {
     let coords;
     let locationDisplay;
@@ -238,7 +230,7 @@ async function fetchWeather() {
       ? `${location.city}, ${location.principalSubdivision}, ${location.countryCode}`
       : `${location.city}, ${location.countryCode}`;
     } else {
-      
+      WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
       coords = await getCoordinates(WEATHER_LOCATION);
     
       locationDisplay = coords.admin1
@@ -333,11 +325,13 @@ updateClock();
 setInterval(updateClock, 1000);
 
 fetchWeather();
-setInterval(fetchWeather, 5 * 60 * 1000); // Refresh weather every 5 minutes
+setTimeout(fetchWeather, 5000); // Initial weather fetch after 5 seconds
+setTimeout(fetchWeather, 5000);
+setInterval(fetchWeather, 5 *60 * 1000); // Refresh weather every 5 minutes
 
 async function handleUpdate() {
-  getGeoCoords();
   fetchWeather();
+  setTimeout(fetchWeather, 5000); // Fetch weather again after 5 seconds to allow geolocation to update
 }
 
 loadConfig();

@@ -13,7 +13,7 @@
       <label for="cityName">City:</label>
       <input type="text" id="cityName" name="cityName"><br><br>
       <button id="submitBtn" class="submitBtn" onclick="handleSubmit()">Update</button>
-      <input type="checkbox" id="Geolocation" name="Geolocation" checked>
+      <input type="checkbox" id="Geolocation" name="Geolocation" checked onchange="handleUpdate()">
       <label for="Geolocation">Use Geolocation</label>
     </header>
 
@@ -28,7 +28,7 @@
       <div id="weather-location" class="weather-location">Loading location...</div>
       <div id="weather-temp" class="weather-temp">Loading...</div>
       <div id="weather-condition" class="weather-condition">Fetching weather...</div>
-      <button id="updateBtn" class="updateBtn" onclick="handleUpdate()">Refresh Weather</button>
+      <!--button id="updateBtn" class="updateBtn" onclick="handleUpdate()">Refresh Weather</button-->
     </section>
 
     <section class="announcements-panel">
