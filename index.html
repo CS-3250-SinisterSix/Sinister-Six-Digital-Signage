@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -17,37 +17,50 @@
       <label for="Geolocation">Use Geolocation</label>
     </header>
 
-    <section class="clock-panel">
-      <h2>Time</h2>
-      <div class="clock">12:00 PM</div>
-      <div class="date">Monday, April 13, 2026</div>
-    </section>
+      <section class="clock-panel">
+        <h2>Time</h2>
+        <div class="clock">12:00 PM</div>
+        <div class="date">Monday, April 13, 2026</div>
+      </section>
 
-    <section class="weather-panel">
-      <h2>Weather</h2>
-      <div id="weather-location" class="weather-location">Loading location...</div>
-      <div id="weather-temp" class="weather-temp">Loading...</div>
-      <div id="weather-condition" class="weather-condition">Fetching weather...</div>
-    </section>
+      <section class="weather-panel">
+        <h2>Weather</h2>
+        <div id="weather-location" class="weather-location">
+          Loading location...
+        </div>
+        <div id="weather-temp" class="weather-temp">Loading...</div>
+        <div id="weather-condition" class="weather-condition">
+          Fetching weather...
+        </div>
+      </section>
 
-    <section class="announcements-panel">
-      <h2>News</h2>
-      <div id="news-source" class="news-source">BBC News</div>
-      <div id="news-container">
-        <p class="headline">Loading news...</p>
-      </div>
-    </section>
+      <section class="news-panel">
+        <h2>News</h2>
+        <div id="news-source" class="news-source">BBC News</div>
+        <div id="news-container">
+          <p class="cycle-item">Loading news...</p>
+        </div>
+      </section>
 
-    <section class="extra-panel">
-      <h2>Extra</h2>
-      <p>This area can be used later for events, images, news, or reminders.</p>
-    </section>
+      <section class="announcements-panel">
+        <h2>Announcements</h2>
+        <div id="announcements-container">
+          <p class="cycle-item">Loading announcements...</p>
+        </div>
+      </section>
 
-    <footer class="footer">
-      <p id="footer-text">Room for future footer content</p>
-    </footer>
-  </div>
+      <section class="images-panel">
+        <h2>Gallery</h2>
+        <div id="images-container">
+          <p class="cycle-item">Loading images...</p>
+        </div>
+      </section>
 
-  <script src="app.js"></script>
-</body>
+      <footer class="footer">
+        <p id="footer-text">Room for future footer content</p>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
 </html>
