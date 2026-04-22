@@ -181,8 +181,6 @@ async function loadConfig() {
   }
 }
 
-
-
 // ================= CLOCK =================
 
 function updateClock() {
@@ -258,17 +256,17 @@ function getWeatherDescription(code) {
 
 async function handleSubmit() {
   if (!document.getElementById('Geolocation').checked) {
-  const cityInput = document.getElementById('cityName').value.trim();
-  if (!cityInput) return;
-  let CITY_LOCATION, data;
-  try {
-    CITY_LOCATION = cityInput;
-  } catch (err) {
-    throw new Error("Invalid city name. Error: " + err.message);
-  }
-  data = { city: CITY_LOCATION };
-  localStorage.setItem("weatherCity", JSON.stringify(data));
-  fetchWeather();
+    const cityInput = document.getElementById('cityName').value.trim();
+    if (!cityInput) return;
+    let CITY_LOCATION, data;
+    try {
+      CITY_LOCATION = cityInput;
+    } catch (err) {
+      throw new Error('Invalid city name. Error: ' + err.message);
+    }
+    data = { city: CITY_LOCATION };
+    localStorage.setItem('weatherCity', JSON.stringify(data));
+    fetchWeather();
   }
 }
 
@@ -278,13 +276,12 @@ async function getCoordinates(locationName) {
   );
 
   if (!response.ok) {
-
-    throw new Error("Failed to fetch location data.");
+    throw new Error('Failed to fetch location data.');
   }
   const data = await response.json();
 
   if (!data.results || data.results.length === 0) {
-    throw new Error("Location not found.");
+    throw new Error('Location not found.');
   }
 
   return {
@@ -297,24 +294,23 @@ async function getCoordinates(locationName) {
 }
 
 async function getGeoCoords() {
-    let lat;
-    let lon;
-    let coord;
-  if ("geolocation" in navigator) {
+  let lat;
+  let lon;
+  let coord;
+  if ('geolocation' in navigator) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         lat = String(position.coords.latitude);
         lon = String(position.coords.longitude);
         coord = { latitude: lat, longitude: lon };
-        localStorage.setItem("geoCoords", JSON.stringify(coord));
+        localStorage.setItem('geoCoords', JSON.stringify(coord));
       },
       (error) => {
-        throw new Error("Failed to get geolocation. Error: " + error.message);
+        throw new Error('Failed to get geolocation. Error: ' + error.message);
       }
     );
-    
   } else {
-    throw new Error("Geolocation is not supported by this browser.");
+    throw new Error('Geolocation is not supported by this browser.');
   }
 }
 
@@ -324,47 +320,46 @@ async function geocodeLatLng(lat, lon) {
       `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
     );
     const data = await response.json();
-  let location = data.principalSubdivision
-    ? `${data.city}, ${data.principalSubdivision}`
-    : `${data.city}, ${data.countryCode}`;
- 
-  localStorage.setItem("location", location);
-  return {
-    city: data.city,
-    principalSubdivision: data.principalSubdivision,
-    countryCode: data.countryCode,
-  };
+    let location = data.principalSubdivision
+      ? `${data.city}, ${data.principalSubdivision}`
+      : `${data.city}, ${data.countryCode}`;
+
+    localStorage.setItem('location', location);
+    return {
+      city: data.city,
+      principalSubdivision: data.principalSubdivision,
+      countryCode: data.countryCode,
+    };
   } catch (error) {
-    throw new Error("Failed to reverse geocode coordinates. Error: " + error.message);
+    throw new Error(
+      'Failed to reverse geocode coordinates. Error: ' + error.message
+    );
   }
-  
 }
 
-
 async function fetchWeather() {
-  
   try {
     let coords;
     let locationDisplay;
     let location;
     let WEATHER_LOCATION;
-    if(document.getElementById('Geolocation').checked) {
+    if (document.getElementById('Geolocation').checked) {
       //coords = await getGeoCoords();
       await getGeoCoords();
-      coords = JSON.parse(localStorage.getItem("geoCoords"));
+      coords = JSON.parse(localStorage.getItem('geoCoords'));
 
       location = await geocodeLatLng(coords.latitude, coords.longitude);
 
       locationDisplay = location.principalSubdivision
-      ? `${location.city}, ${location.principalSubdivision}, ${location.countryCode}`
-      : `${location.city}, ${location.countryCode}`;
+        ? `${location.city}, ${location.principalSubdivision}, ${location.countryCode}`
+        : `${location.city}, ${location.countryCode}`;
     } else {
-      WEATHER_LOCATION = JSON.parse(localStorage.getItem("weatherCity")).city;
+      WEATHER_LOCATION = JSON.parse(localStorage.getItem('weatherCity')).city;
       coords = await getCoordinates(WEATHER_LOCATION);
-    
+
       locationDisplay = coords.admin1
-      ? `${coords.name}, ${coords.admin1}, ${coords.country}`
-      : `${coords.name}, ${coords.country}`;
+        ? `${coords.name}, ${coords.admin1}, ${coords.country}`
+        : `${coords.name}, ${coords.country}`;
     }
 
     const response = await fetch(
@@ -437,11 +432,11 @@ setInterval(updateClock, 1000);
 fetchWeather();
 setTimeout(fetchWeather, 5000); // Initial weather fetch after 5 seconds
 setTimeout(fetchWeather, 5000);
-setInterval(fetchWeather, 5 *60 * 1000); // Refresh weather every 5 minutes
+setInterval(fetchWeather, 5 * 60 * 1000); // Refresh weather every 5 minutes
 
- if (!document.getElementById('Geolocation').checked) {
- document.getElementById('submitBtn').addEventListener('click', handleSubmit);
- }
+if (!document.getElementById('Geolocation').checked) {
+  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+}
 
 async function handleUpdate() {
   fetchWeather();
@@ -449,12 +444,13 @@ async function handleUpdate() {
 }
 
 if (document.getElementById('Geolocation').checked) {
- document.getElementById('Geolocation').addEventListener('change', handleUpdate);
- }
+  document
+    .getElementById('Geolocation')
+    .addEventListener('change', handleUpdate);
+}
 
 loadConfig();
 
 fetchNews();
 setInterval(fetchNews, 15 * 60 * 1000); // Refresh news every 15 minutes
 //setInterval(rotateHeadline, 5000); // Rotate headline every 5 seconds
-
