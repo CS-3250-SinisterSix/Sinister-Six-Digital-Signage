@@ -67,6 +67,7 @@ async function loadConfig() {
 function updateClock() {
   const clockElement = document.querySelector('.clock');
   const dateElement = document.querySelector('.date');
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const now = new Date();
 
