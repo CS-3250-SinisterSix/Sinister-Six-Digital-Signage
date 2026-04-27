@@ -13,6 +13,14 @@ body {
 
 .dashboard {
   display: grid;
+  gap: 16px;
+  height: 100vh;
+  padding: 16px;
+}
+
+/* ================= LANDSCAPE (1920x1080) ================= */
+
+.dashboard.landscape {
   grid-template-areas:
     'header header'
     'clock weather'
@@ -21,9 +29,21 @@ body {
     'footer footer';
   grid-template-columns: 2fr 1fr;
   grid-template-rows: auto 2fr 2fr 2fr auto;
-  gap: 16px;
-  height: 100vh;
-  padding: 16px;
+}
+
+/* ================= PORTRAIT (1080x1920) ================= */
+
+.dashboard.portrait {
+  grid-template-areas:
+    'header'
+    'clock'
+    'weather'
+    'news'
+    'announcements'
+    'images'
+    'footer';
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto 1fr 1fr 1fr auto;
 }
 
 .header {
@@ -151,6 +171,28 @@ h2 {
 #announcements-container {
   font-size: 1.3rem;
   line-height: 1.5;
+}
+
+/* ================= ORIENTATION TOGGLE ================= */
+
+.orientation-toggle {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background-color: #333;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  z-index: 100;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.orientation-toggle:hover {
+  opacity: 1;
 }
 
 /* ================= CYCLING TRANSITIONS ================= */
