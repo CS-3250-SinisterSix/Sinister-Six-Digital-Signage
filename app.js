@@ -185,7 +185,8 @@ async function loadConfig() {
             img.onerror = function () {
               img.style.display = 'none';
               const fallback = document.createElement('p');
-              fallback.textContent = 'Image not available';
+              fallback.className = 'error-message';
+              fallback.textContent = 'Image not found';
               wrapper.appendChild(fallback);
             };
             wrapper.appendChild(img);
@@ -205,6 +206,9 @@ async function loadConfig() {
     }
   } catch (error) {
     console.error('Config error:', error);
+    document.getElementById('title').textContent =
+      'Configuration could not be loaded';
+    document.getElementById('title').classList.add('error-message');
   }
 }
 
@@ -447,7 +451,7 @@ function fetchNews(rssUrl, maxItems, cycleSec) {
     .catch(function (error) {
       console.error('News error:', error);
       document.getElementById('news-container').innerHTML =
-        '<p>News unavailable</p>';
+        '<p class="error-message">Feed unavailable</p>';
     });
 }
 
