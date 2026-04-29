@@ -1,3 +1,30 @@
+// ================= ORIENTATION TOGGLE =================
+
+(function () {
+  var dashboard = document.getElementById('dashboard');
+  var button = document.getElementById('orientation-btn');
+
+  function applyOrientation(mode) {
+    dashboard.classList.remove('landscape', 'portrait');
+    dashboard.classList.add(mode);
+    button.textContent =
+      mode === 'portrait' ? 'Switch to Landscape' : 'Switch to Portrait';
+  }
+
+  // Restore saved orientation
+  var saved = localStorage.getItem('orientation');
+  if (saved) {
+    applyOrientation(saved);
+  }
+
+  button.addEventListener('click', function () {
+    var isLandscape = dashboard.classList.contains('landscape');
+    var next = isLandscape ? 'portrait' : 'landscape';
+    applyOrientation(next);
+    localStorage.setItem('orientation', next);
+  });
+})();
+
 // ================= GENERIC CONTENT CYCLER =================
 
 /**
