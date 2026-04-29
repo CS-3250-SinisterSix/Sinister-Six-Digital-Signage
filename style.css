@@ -153,6 +153,14 @@ h2 {
   line-height: 1.5;
 }
 
+/* ================= ERROR FALLBACK ================= */
+
+.error-message {
+  color: #ff6b6b;
+  font-style: italic;
+  opacity: 0.9;
+}
+
 /* ================= CYCLING TRANSITIONS ================= */
 
 .cycle-item {
