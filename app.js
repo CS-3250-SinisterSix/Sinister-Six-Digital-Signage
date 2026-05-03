@@ -142,10 +142,10 @@ async function loadConfig() {
         sourceEl.textContent = config.rss.source;
       }
       fetchNews(
-        config.rss.url,
-        config.rss.maxItems || 5,
-        config.rss.cycle || 6
-      );
+  config.rss.sources || [{ name: config.rss.source, url: config.rss.url }],
+  config.rss.maxItems || 5,
+  config.rss.cycle || 6
+);
     }
 
     // Start announcements cycling
@@ -414,53 +414,86 @@ async function fetchWeather() {
 
 // ================= RSS NEWS =================
 
-function fetchNews(rssUrl, maxItems, cycleSec) {
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+function fetchWithTimeout(url, timeoutMs = 5000) {
+  const controller = new AbortController();
 
-  fetch(proxyUrl)
-    .then(function (response) {
-      if (!response.ok) {
-        throw new Error("Failed to fetch RSS feed");
+  const timeoutId = setTimeout(function () {
+    controller.abort();
+  }, timeoutMs);
+
+  return fetch(url, { signal: controller.signal }).finally(function () {
+    clearTimeout(timeoutId);
+  });
+}
+
+
+async function fetchNews(rssSources, maxItems, cycleSec) {
+  const sources = Array.isArray(rssSources) ? rssSources : [rssSources];
+
+  try {
+    let headlines = [];
+
+    for (const source of sources) {
+      try {
+        console.log('Trying RSS source:', source.name);
+
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`;
+        const response = await fetchWithTimeout(proxyUrl, 5000);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch RSS feed');
+        }
+
+        const xmlText = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+        const parseError = xmlDoc.querySelector('parsererror');
+        if (parseError) {
+          throw new Error('Invalid RSS XML');
+        }
+
+        const items = xmlDoc.querySelectorAll('item');
+
+        headlines = Array.from(items)
+          .slice(0, maxItems)
+          .map(function (item) {
+            return item.querySelector('title')?.textContent || 'No title';
+          });
+
+        if (headlines.length > 0) {
+          const sourceEl = document.getElementById('news-source');
+
+          if (sourceEl && source.name) {
+            sourceEl.textContent = source.name;
+          }
+
+          break;
+        }
+      } catch (error) {
+        console.warn('RSS source failed:', source.name, error);
       }
-      return response.text();
-    })
-    .then(function (xmlText) {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+    }
 
-      const parseError = xmlDoc.querySelector("parsererror");
-      if (parseError) {
-        throw new Error("Invalid RSS XML");
-      }
+    if (headlines.length === 0) {
+      throw new Error('No news items found');
+    }
 
-      const items = xmlDoc.querySelectorAll("item");
-
-      const headlines = Array.from(items)
-        .slice(0, maxItems)
-        .map(function (item) {
-          return item.querySelector("title")?.textContent || "No title";
-        });
-
-      if (headlines.length > 0) {
-        startCycler(
-          "news-container",
-          headlines,
-          function (text) {
-            const p = document.createElement("p");
-            p.textContent = "\u2022 " + text;
-            return p;
-          },
-          cycleSec
-        );
-      } else {
-        throw new Error("No news items found");
-      }
-    })
-    .catch(function (error) {
-      console.error("News error:", error);
-      document.getElementById("news-container").innerHTML =
-        '<p class="error-message">Feed unavailable</p>';
-    });
+    startCycler(
+      'news-container',
+      headlines,
+      function (text) {
+        const p = document.createElement('p');
+        p.textContent = '\u2022 ' + text;
+        return p;
+      },
+      cycleSec
+    );
+  } catch (error) {
+    console.error('News error:', error);
+    document.getElementById('news-container').innerHTML =
+      '<p class="error-message">Feed unavailable</p>';
+  }
 }
 
 // ================= RUN APP =================
