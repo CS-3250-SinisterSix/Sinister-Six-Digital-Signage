@@ -415,42 +415,50 @@ async function fetchWeather() {
 // ================= RSS NEWS =================
 
 function fetchNews(rssUrl, maxItems, cycleSec) {
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
 
   fetch(proxyUrl)
     .then(function (response) {
       if (!response.ok) {
-        throw new Error('Failed to fetch RSS feed');
+        throw new Error("Failed to fetch RSS feed");
       }
-      return response.json();
+      return response.text();
     })
-    .then(function (data) {
+    .then(function (xmlText) {
       const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(data.contents, 'text/xml');
-      const items = xmlDoc.querySelectorAll('item');
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+      const parseError = xmlDoc.querySelector("parsererror");
+      if (parseError) {
+        throw new Error("Invalid RSS XML");
+      }
+
+      const items = xmlDoc.querySelectorAll("item");
 
       const headlines = Array.from(items)
         .slice(0, maxItems)
         .map(function (item) {
-          return item.querySelector('title')?.textContent || 'No title';
+          return item.querySelector("title")?.textContent || "No title";
         });
 
       if (headlines.length > 0) {
         startCycler(
-          'news-container',
+          "news-container",
           headlines,
           function (text) {
-            const p = document.createElement('p');
-            p.textContent = '\u2022 ' + text;
+            const p = document.createElement("p");
+            p.textContent = "\u2022 " + text;
             return p;
           },
           cycleSec
         );
+      } else {
+        throw new Error("No news items found");
       }
     })
     .catch(function (error) {
-      console.error('News error:', error);
-      document.getElementById('news-container').innerHTML =
+      console.error("News error:", error);
+      document.getElementById("news-container").innerHTML =
         '<p class="error-message">Feed unavailable</p>';
     });
 }
@@ -481,7 +489,3 @@ if (document.getElementById('Geolocation').checked) {
 }
 
 loadConfig();
-
-fetchNews();
-setInterval(fetchNews, 15 * 60 * 1000); // Refresh news every 15 minutes
-//setInterval(rotateHeadline, 5000); // Rotate headline every 5 seconds
