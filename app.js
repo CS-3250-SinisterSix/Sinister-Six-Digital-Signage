@@ -437,14 +437,38 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
       try {
         console.log('Trying RSS source:', source.name);
 
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`;
-        const response = await fetchWithTimeout(proxyUrl, 5000);
+        const proxyUrls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(source.url)}`
+        ];
+        
+        let xmlText = null;
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch RSS feed');
+      for (const proxyUrl of proxyUrls) {
+        try {
+            console.log('Trying proxy:', proxyUrl);
+
+            const response = await fetchWithTimeout(proxyUrl, 5000);
+
+            if (!response.ok) {
+              throw new Error('Bad response');
+            }
+
+            xmlText = await response.text();
+
+            if (xmlText && xmlText.length > 0) {
+              console.log('Proxy success');
+            break;
+            }
+          } catch (err) {
+            console.warn('Proxy failed:', proxyUrl);
+          }
         }
 
-        const xmlText = await response.text();
+      if (!xmlText) {
+        throw new Error('All proxies failed');
+      }
+
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -497,7 +521,7 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
       newsItems,
       function (item) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'news-item';
+        wrapper.className = item.thumbnail ? 'news-item' : 'news-item no-thumbnail';
 
         if (item.thumbnail) {
           const img = document.createElement('img');

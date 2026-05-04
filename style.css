@@ -245,6 +245,15 @@ h2 {
   border-radius: 6px;
 }
 
+/* When NO thumbnail exists (fix NPR squish) */
+.news-item.no-thumbnail {
+  grid-template-columns: 1fr 100px;
+}
+
+.news-item.no-thumbnail .news-headline {
+  max-width: 100%;
+}
+
 /* Stack news content better in portrait mode */
 .dashboard.portrait .news-item {
   grid-template-columns: 100px 1fr 80px;
