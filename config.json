@@ -10,13 +10,25 @@
     "location": "Denver, CO",
     "units": "fahrenheit"
   },
-  "rss": {
-    "enabled": true,
-    "url": "https://feeds.bbci.co.uk/news/rss.xml",
-    "source": "BBC News",
-    "maxItems": 5,
-    "cycle": 6
-  },
+"rss": {
+  "enabled": true,
+  "sources": [
+    {
+      "name": "BBC News",
+      "url": "https://feeds.bbci.co.uk/news/rss.xml"
+    },
+    {
+      "name": "New York Times News",
+      "url": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+    },
+    {
+      "name": "NPR News",
+      "url": "https://feeds.npr.org/1001/rss.xml"
+    }
+  ],
+  "maxItems": 5,
+  "cycle": 6
+},
   "announcements": {
     "items": [
       "Welcome to the Computer Science Department.",
