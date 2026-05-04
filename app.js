@@ -461,7 +461,7 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
             break;
             }
           } catch (err) {
-            console.warn('Proxy failed:', proxyUrl);
+            console.warn('Proxy failed:', proxyUrl, err);
           }
         }
 
