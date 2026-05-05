@@ -214,6 +214,62 @@ h2 {
   opacity: 0;
 }
 
+/* ================= NEWS ITEMS ================= */
+
+.news-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 100px;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.news-thumbnail {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  background-color: #222;
+}
+
+.news-headline {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.news-qr {
+  width: 90px;
+  height: 90px;
+  background-color: white;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+/* When NO thumbnail exists (fix NPR squish) */
+.news-item.no-thumbnail {
+  grid-template-columns: 1fr 100px;
+}
+
+.news-item.no-thumbnail .news-headline {
+  max-width: 100%;
+}
+
+/* Stack news content better in portrait mode */
+.dashboard.portrait .news-item {
+  grid-template-columns: 100px 1fr 80px;
+  gap: 12px;
+}
+
+.dashboard.portrait .news-thumbnail {
+  width: 100px;
+  height: 70px;
+}
+
+.dashboard.portrait .news-qr {
+  width: 75px;
+  height: 75px;
+}
+
 /* ================= IMAGE CYCLING ================= */
 
 .images-panel img {

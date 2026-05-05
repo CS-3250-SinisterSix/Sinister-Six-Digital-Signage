@@ -431,20 +431,44 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
   const sources = Array.isArray(rssSources) ? rssSources : [rssSources];
 
   try {
-    let headlines = [];
+    let newsItems = [];
 
     for (const source of sources) {
       try {
         console.log('Trying RSS source:', source.name);
 
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`;
-        const response = await fetchWithTimeout(proxyUrl, 5000);
+        const proxyUrls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(source.url)}`
+        ];
+        
+        let xmlText = null;
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch RSS feed');
+      for (const proxyUrl of proxyUrls) {
+        try {
+            console.log('Trying proxy:', proxyUrl);
+
+            const response = await fetchWithTimeout(proxyUrl, 5000);
+
+            if (!response.ok) {
+              throw new Error('Bad response');
+            }
+
+            xmlText = await response.text();
+
+            if (xmlText && xmlText.length > 0) {
+              console.log('Proxy success');
+            break;
+            }
+          } catch (err) {
+            console.warn('Proxy failed:', proxyUrl, err);
+          }
         }
 
-        const xmlText = await response.text();
+      if (!xmlText) {
+        throw new Error('All proxies failed');
+      }
+
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -455,13 +479,26 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
 
         const items = xmlDoc.querySelectorAll('item');
 
-        headlines = Array.from(items)
+        newsItems = Array.from(items)
           .slice(0, maxItems)
           .map(function (item) {
-            return item.querySelector('title')?.textContent || 'No title';
+            const thumbnail =
+              item
+                .querySelector('media\\:thumbnail, thumbnail')
+                ?.getAttribute('url') ||
+              item
+                .querySelector('media\\:content, content')
+                ?.getAttribute('url') ||
+              null;
+
+            return {
+              title: item.querySelector('title')?.textContent || 'No title',
+              link: item.querySelector('link')?.textContent || null,
+              thumbnail: thumbnail,
+            };
           });
 
-        if (headlines.length > 0) {
+        if (newsItems.length > 0) {
           const sourceEl = document.getElementById('news-source');
 
           if (sourceEl && source.name) {
@@ -475,17 +512,51 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
       }
     }
 
-    if (headlines.length === 0) {
+    if (newsItems.length === 0) {
       throw new Error('No news items found');
     }
 
     startCycler(
       'news-container',
-      headlines,
-      function (text) {
-        const p = document.createElement('p');
-        p.textContent = '\u2022 ' + text;
-        return p;
+      newsItems,
+      function (item) {
+        const wrapper = document.createElement('div');
+        wrapper.className = item.thumbnail ? 'news-item' : 'news-item no-thumbnail';
+
+        if (item.thumbnail) {
+          const img = document.createElement('img');
+          img.className = 'news-thumbnail';
+          img.src = item.thumbnail;
+          img.alt = item.title;
+
+          img.onerror = function () {
+            img.style.display = 'none';
+          };
+
+          wrapper.appendChild(img);
+        }
+
+        const headline = document.createElement('p');
+        headline.className = 'news-headline';
+        headline.textContent = '\u2022 ' + item.title;
+        wrapper.appendChild(headline);
+
+        if (item.link) {
+          const qr = document.createElement('img');
+          qr.className = 'news-qr';
+          qr.alt = 'QR code for article';
+          qr.src =
+            'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' +
+            encodeURIComponent(item.link);
+
+          qr.onerror = function () {
+            qr.style.display = 'none';
+          };
+
+          wrapper.appendChild(qr);
+        }
+
+        return wrapper;
       },
       cycleSec
     );
