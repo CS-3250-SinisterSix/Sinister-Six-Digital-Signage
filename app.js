@@ -25,6 +25,37 @@
   });
 })();
 
+// ================= THEME TOGGLE =================
+
+(function () {
+  const themes = ['dark', 'light', 'branded'];
+  const themeLabels = {
+    dark: '🌙 Dark',
+    light: '☀️ Light',
+    branded: '🎓 Branded',
+  };
+  const body = document.body;
+  const button = document.getElementById('theme-btn');
+
+  function applyTheme(theme) {
+    body.classList.remove('theme-light', 'theme-branded');
+    if (theme === 'light') body.classList.add('theme-light');
+    if (theme === 'branded') body.classList.add('theme-branded');
+    const next = themes[(themes.indexOf(theme) + 1) % themes.length];
+    button.textContent = `Switch to ${themeLabels[next]}`;
+  }
+
+  const saved = localStorage.getItem('theme') || 'dark';
+  applyTheme(saved);
+
+  button.addEventListener('click', function () {
+    const current = localStorage.getItem('theme') || 'dark';
+    const next = themes[(themes.indexOf(current) + 1) % themes.length];
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+  });
+})();
+
 // ================= GENERIC CONTENT CYCLER =================
 
 /**
@@ -81,6 +112,15 @@ async function loadConfig() {
     }
 
     const config = await response.json();
+
+    // Apply theme from config (only if no user preference saved)
+    if (config.theme && !localStorage.getItem('theme')) {
+      localStorage.setItem('theme', config.theme);
+      const themeBtn = document.getElementById('theme-btn');
+      if (themeBtn) {
+        themeBtn.click(); // triggers applyTheme via the button listener
+      }
+    }
 
     // Update title
     document.getElementById('title').textContent = config.title;
@@ -142,10 +182,10 @@ async function loadConfig() {
         sourceEl.textContent = config.rss.source;
       }
       fetchNews(
-  config.rss.sources || [{ name: config.rss.source, url: config.rss.url }],
-  config.rss.maxItems || 5,
-  config.rss.cycle || 6
-);
+        config.rss.sources || [{ name: config.rss.source, url: config.rss.url }],
+        config.rss.maxItems || 5,
+        config.rss.cycle || 6
+      );
     }
 
     // Start announcements cycling
@@ -375,7 +415,6 @@ async function fetchWeather() {
     let location;
     let WEATHER_LOCATION;
     if (document.getElementById('Geolocation').checked) {
-      //coords = await getGeoCoords();
       await getGeoCoords();
       coords = JSON.parse(localStorage.getItem('geoCoords'));
 
@@ -426,7 +465,6 @@ function fetchWithTimeout(url, timeoutMs = 5000) {
   });
 }
 
-
 async function fetchNews(rssSources, maxItems, cycleSec) {
   const sources = Array.isArray(rssSources) ? rssSources : [rssSources];
 
@@ -438,14 +476,14 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
         console.log('Trying RSS source:', source.name);
 
         const proxyUrls = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(source.url)}`
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(source.url)}`,
         ];
-        
+
         let xmlText = null;
 
-      for (const proxyUrl of proxyUrls) {
-        try {
+        for (const proxyUrl of proxyUrls) {
+          try {
             console.log('Trying proxy:', proxyUrl);
 
             const response = await fetchWithTimeout(proxyUrl, 5000);
@@ -458,16 +496,16 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
 
             if (xmlText && xmlText.length > 0) {
               console.log('Proxy success');
-            break;
+              break;
             }
           } catch (err) {
             console.warn('Proxy failed:', proxyUrl, err);
           }
         }
 
-      if (!xmlText) {
-        throw new Error('All proxies failed');
-      }
+        if (!xmlText) {
+          throw new Error('All proxies failed');
+        }
 
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
@@ -521,7 +559,9 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
       newsItems,
       function (item) {
         const wrapper = document.createElement('div');
-        wrapper.className = item.thumbnail ? 'news-item' : 'news-item no-thumbnail';
+        wrapper.className = item.thumbnail
+          ? 'news-item'
+          : 'news-item no-thumbnail';
 
         if (item.thumbnail) {
           const img = document.createElement('img');
@@ -573,9 +613,8 @@ updateClock();
 setInterval(updateClock, 1000);
 
 fetchWeather();
-setTimeout(fetchWeather, 5000); // Initial weather fetch after 5 seconds
 setTimeout(fetchWeather, 5000);
-setInterval(fetchWeather, 5 * 60 * 1000); // Refresh weather every 5 minutes
+setInterval(fetchWeather, 5 * 60 * 1000);
 
 if (!document.getElementById('Geolocation').checked) {
   document.getElementById('submitBtn').addEventListener('click', handleSubmit);
@@ -583,7 +622,7 @@ if (!document.getElementById('Geolocation').checked) {
 
 async function handleUpdate() {
   fetchWeather();
-  setTimeout(fetchWeather, 5000); // Fetch weather again after 5 seconds to allow geolocation to update
+  setTimeout(fetchWeather, 5000);
 }
 
 if (document.getElementById('Geolocation').checked) {
