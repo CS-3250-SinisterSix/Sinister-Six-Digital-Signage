@@ -11,7 +11,20 @@ export function parseNewsItems(xmlText, maxItems = 5) {
     throw new Error('Invalid RSS XML');
   }
 
-  return Array.from(xmlDoc.querySelectorAll('item'))
+  const items = xmlDoc.querySelectorAll('item');
+
+  return Array.from(items)
     .slice(0, maxItems)
-    .map((item) => item.querySelector('title')?.textContent || 'No title');
+    .map(function (item) {
+      const thumbnail =
+        item.querySelector('media\\:thumbnail, thumbnail')?.getAttribute('url') ||
+        item.querySelector('media\\:content, content')?.getAttribute('url') ||
+        null;
+
+      return {
+        title: item.querySelector('title')?.textContent || 'No title',
+        link: item.querySelector('link')?.textContent || null,
+        thumbnail: thumbnail,
+      };
+    });
 }
