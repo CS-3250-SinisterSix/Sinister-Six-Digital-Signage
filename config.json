@@ -10,25 +10,25 @@
     "location": "Denver, CO",
     "units": "fahrenheit"
   },
-"rss": {
-  "enabled": true,
-  "sources": [
-    {
-      "name": "BBC News",
-      "url": "https://feeds.bbci.co.uk/news/rss.xml"
-    },
-    {
-      "name": "New York Times News",
-      "url": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
-    },
-    {
-      "name": "NPR News",
-      "url": "https://feeds.npr.org/1001/rss.xml"
-    }
-  ],
-  "maxItems": 5,
-  "cycle": 6
-},
+  "rss": {
+    "enabled": true,
+    "sources": [
+      {
+        "name": "BBC News",
+        "url": "https://feeds.bbci.co.uk/news/rss.xml"
+      },
+      {
+        "name": "New York Times News",
+        "url": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+      },
+      {
+        "name": "NPR News",
+        "url": "https://feeds.npr.org/1001/rss.xml"
+      }
+    ],
+    "maxItems": 5,
+    "cycle": 6
+  },
   "announcements": {
     "items": [
       "Welcome to the Computer Science Department.",
@@ -41,6 +41,32 @@
     "enabled": true,
     "cycle": 10,
     "items": [{ "url": "Clock.jpg", "caption": "Campus Clock" }]
+  },
+  "events": {
+    "enabled": true,
+    "cycle": 10,
+    "items": [
+      {
+        "name": "Spring Last Day of Classes",
+        "date": "2026-05-10T23:59:00"
+      },
+      {
+        "name": "Spring Finals Week",
+        "date": "2026-05-11T08:00:00"
+      },
+      {
+        "name": "Spring Commencement",
+        "date": "2026-05-15T10:00:00"
+      },
+      {
+        "name": "Summer Classes Begin",
+        "date": "2026-06-08T08:00:00"
+      },
+      {
+        "name": "Summer Last Day of Classes",
+        "date": "2026-08-02T23:59:00"
+      }
+    ]
   },
   "footer": "Room for future footer content",
   "backgroundImage": "",

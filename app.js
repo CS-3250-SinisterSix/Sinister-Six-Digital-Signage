@@ -142,10 +142,12 @@ async function loadConfig() {
         sourceEl.textContent = config.rss.source;
       }
       fetchNews(
-  config.rss.sources || [{ name: config.rss.source, url: config.rss.url }],
-  config.rss.maxItems || 5,
-  config.rss.cycle || 6
-);
+        config.rss.sources || [
+          { name: config.rss.source, url: config.rss.url },
+        ],
+        config.rss.maxItems || 5,
+        config.rss.cycle || 6
+      );
     }
 
     // Start announcements cycling
@@ -164,6 +166,16 @@ async function loadConfig() {
           },
           cycle
         );
+      }
+    }
+
+    // Start event countdown
+    if (config.events && config.events.enabled && config.events.items) {
+      const eventItems = config.events.items;
+      const eventCycle = config.events.cycle || 10;
+
+      if (eventItems.length > 0) {
+        startEventCountdown('events-container', eventItems, eventCycle);
       }
     }
 
@@ -426,7 +438,6 @@ function fetchWithTimeout(url, timeoutMs = 5000) {
   });
 }
 
-
 async function fetchNews(rssSources, maxItems, cycleSec) {
   const sources = Array.isArray(rssSources) ? rssSources : [rssSources];
 
@@ -565,6 +576,141 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
     document.getElementById('news-container').innerHTML =
       '<p class="error-message">Feed unavailable</p>';
   }
+}
+
+// ================= EVENT COUNTDOWN =================
+
+function startEventCountdown(containerId, events, cycleSec) {
+  const container = document.getElementById(containerId);
+  let index = 0;
+  let tickInterval = null;
+
+  function calcRemaining(targetDate) {
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+      return null;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    return { days: days, hours: hours, minutes: minutes, seconds: seconds };
+  }
+
+  function renderCountdown(event) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'countdown-wrapper';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'countdown-event-name';
+    nameEl.textContent = event.name;
+    wrapper.appendChild(nameEl);
+
+    const target = new Date(event.date);
+    const remaining = calcRemaining(target);
+
+    if (!remaining) {
+      const passed = document.createElement('div');
+      passed.className = 'countdown-passed';
+      passed.textContent = 'Event started!';
+      wrapper.appendChild(passed);
+    } else {
+      const digits = document.createElement('div');
+      digits.className = 'countdown-digits';
+
+      var units = [
+        { value: remaining.days, label: 'Days' },
+        { value: remaining.hours, label: 'Hours' },
+        { value: remaining.minutes, label: 'Minutes' },
+        { value: remaining.seconds, label: 'Seconds' },
+      ];
+
+      units.forEach(function (unit) {
+        const unitEl = document.createElement('div');
+        unitEl.className = 'countdown-unit';
+
+        const valEl = document.createElement('div');
+        valEl.className = 'countdown-value';
+        valEl.textContent = String(unit.value).padStart(2, '0');
+        unitEl.appendChild(valEl);
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'countdown-label';
+        labelEl.textContent = unit.label;
+        unitEl.appendChild(labelEl);
+
+        digits.appendChild(unitEl);
+      });
+
+      wrapper.appendChild(digits);
+    }
+
+    return wrapper;
+  }
+
+  function updateTick() {
+    const wrapper = container.querySelector('.countdown-wrapper');
+    if (!wrapper) return;
+
+    const event = events[index];
+    const target = new Date(event.date);
+    const remaining = calcRemaining(target);
+
+    const digits = wrapper.querySelector('.countdown-digits');
+    if (!digits) return;
+
+    if (!remaining) {
+      wrapper.innerHTML = '';
+      const nameEl = document.createElement('div');
+      nameEl.className = 'countdown-event-name';
+      nameEl.textContent = event.name;
+      wrapper.appendChild(nameEl);
+      const passed = document.createElement('div');
+      passed.className = 'countdown-passed';
+      passed.textContent = 'Event started!';
+      wrapper.appendChild(passed);
+      return;
+    }
+
+    const values = digits.querySelectorAll('.countdown-value');
+    values[0].textContent = String(remaining.days).padStart(2, '0');
+    values[1].textContent = String(remaining.hours).padStart(2, '0');
+    values[2].textContent = String(remaining.minutes).padStart(2, '0');
+    values[3].textContent = String(remaining.seconds).padStart(2, '0');
+  }
+
+  function show() {
+    container.innerHTML = '';
+    const el = renderCountdown(events[index]);
+    container.appendChild(el);
+  }
+
+  function next() {
+    const current = container.querySelector('.countdown-wrapper');
+    if (current) {
+      current.classList.add('fade-out');
+    }
+
+    setTimeout(function () {
+      index = (index + 1) % events.length;
+      show();
+    }, 800);
+  }
+
+  show();
+  tickInterval = setInterval(updateTick, 1000);
+  const cycleInterval = setInterval(next, cycleSec * 1000);
+
+  return {
+    stop: function () {
+      clearInterval(tickInterval);
+      clearInterval(cycleInterval);
+    },
+  };
 }
 
 // ================= RUN APP =================
