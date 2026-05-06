@@ -28,11 +28,11 @@
 // ================= THEME TOGGLE =================
 
 (function () {
-  const themes = ['dark', 'light', 'branded'];
+  const themes = ['dark', 'light'];
   const themeLabels = {
-    dark: '🌙 Dark',
-    light: '☀️ Light',
-    branded: '🎓 Branded',
+    dark: 'Dark',
+    light: 'Light',
+  
   };
   const body = document.body;
   const button = document.getElementById('theme-btn');
@@ -40,7 +40,6 @@
   function applyTheme(theme) {
     body.classList.remove('theme-light', 'theme-branded');
     if (theme === 'light') body.classList.add('theme-light');
-    if (theme === 'branded') body.classList.add('theme-branded');
     const next = themes[(themes.indexOf(theme) + 1) % themes.length];
     button.textContent = `Switch to ${themeLabels[next]}`;
   }

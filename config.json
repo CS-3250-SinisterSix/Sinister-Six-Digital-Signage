@@ -18,8 +18,7 @@
     "maxItems": 5,
     "cycle": 6,
     "sources": [
-      { "name": "BBC News", "url": "https://feeds.bbci.co.uk/news/rss.xml" },
-      { "name": "NPR News", "url": "https://feeds.npr.org/1001/rss.xml" }
+      { "name": "BBC News", "url": "https://feeds.bbci.co.uk/news/rss.xml" }
     ]
   },
   "announcements": {
