@@ -259,13 +259,26 @@ function updateClock() {
 
 // ================= WEATHER DISPLAY =================
 
-function updateWeatherDisplay(location, temp, condition) {
+function updateWeatherDisplay(
+  location,
+  temp,
+  humidity,
+  condition,
+  windSpeed,
+  windDirection
+) {
   const locationElement = document.getElementById('weather-location');
   const tempElement = document.getElementById('weather-temp');
+  const humidityElement = document.getElementById('weather-humid');
   const conditionElement = document.getElementById('weather-condition');
+  const windTextElement = document.getElementById('wind-text');
+  const needle = document.querySelector('.arrow');
 
+  windTextElement.textContent = `${windSpeed}\nmph`;
+  needle.style.transform = 'rotate(' + windDirection + 'deg)';
   locationElement.textContent = location;
-  tempElement.textContent = temp;
+  tempElement.textContent = `Temperature: ${temp}`;
+  humidityElement.textContent = `Humidity: ${humidity}`;
   conditionElement.textContent = condition;
 }
 
@@ -412,7 +425,7 @@ async function fetchWeather() {
     }
 
     const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`
+      `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch`
     );
 
     if (!response.ok) throw new Error('Failed to fetch weather data.');
@@ -420,13 +433,28 @@ async function fetchWeather() {
     const data = await response.json();
 
     const temperature = Math.round(data.current.temperature_2m);
+    const humidity = data.current.relative_humidity_2m;
+    const windSpeed = Math.round(data.current.wind_speed_10m);
+    const windDirection = data.current.wind_direction_10m;
     const weatherCode = data.current.weather_code;
     const description = getWeatherDescription(weatherCode);
 
-    updateWeatherDisplay(locationDisplay, `${temperature}°F`, description);
+    updateWeatherDisplay(
+      locationDisplay,
+      `${temperature}°F`,
+      `${humidity}%`,
+      description,
+      windSpeed,
+      windDirection
+    );
   } catch (error) {
     console.error('Weather error:', error);
-    updateWeatherDisplay('Location unavailable', '--°F', 'Weather unavailable');
+    updateWeatherDisplay(
+      'Location unavailable',
+      '--°F',
+      '--%',
+      'Weather unavailable'
+    );
   }
 }
 
@@ -602,9 +630,7 @@ function startEventCountdown(containerId, events, cycleSec) {
     }
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 

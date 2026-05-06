@@ -152,15 +152,14 @@ body {
   margin-top: 10px;
 }
 
-.weather-temp {
-  font-size: 3rem;
-  font-weight: bold;
-  margin-top: 20px;
-}
-
+.weather-temp,
+.weather-humid,
 .weather-condition {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: bold;
   margin-top: 10px;
+  justify-content: center;
+  align-items: center;
 }
 
 h2 {
@@ -185,11 +184,106 @@ h2 {
 }
 
 .cityName {
+  position: relative;
+  justify-content: left;
+  align-items: center;
+  font-size: 1rem;
+  margin: 5px;
+  background-color: black;
+  color: white;
+}
+
+.compass-container {
+  width: 175px;
+  height: 175px;
+  margin: 10px;
+  padding: 10px;
+  justify-content: left;
+  align-items: center;
+}
+
+.compass-face {
+  position: relative;
+  width: 175px;
+  height: 175px;
+  border: 5px solid white;
+  background-color: black;
+  border-radius: 50%;
+  margin: auto;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arrow {
+  width: 0;
+  height: 0;
+  /* Creates a triangle pointing up */
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 80px solid red;
+  bottom: 0%; /* Position the arrow so its base is at the center of the compass */
+  position: absolute;
+  transform-origin: top; /* Pivot point for rotation */
+  transition: transform 0.5s ease; /* Smooth movement */
+}
+
+.wind-text-box {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border: 2px solid white;
+  background-color: black;
+  border-radius: 50%;
+}
+
+.wind-text {
+  position: absolute;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+}
+
+.label-n {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 1.5rem;
   font-weight: bold;
-  margin-top: 20px;
-  background-color: var(--input-bg);
-  color: var(--input-color);
+  color: white;
+}
+
+.label-e {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  padding-right: 1px;
+}
+
+.label-s {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+.label-w {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  padding-left: 1px;
 }
 
 .weather-location {
