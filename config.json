@@ -37,11 +37,6 @@
     ],
     "cycle": 8
   },
-  "images": {
-    "enabled": true,
-    "cycle": 10,
-    "items": [{ "url": "Clock.jpg", "caption": "Campus Clock" }]
-  },
   "events": {
     "enabled": true,
     "cycle": 10,
@@ -68,6 +63,17 @@
       }
     ]
   },
+  "comics": {
+    "enabled": true,
+    "maxItems": 5,
+    "cycle": 15,
+    "feeds": [
+      {
+        "name": "XKCD",
+        "url": "https://xkcd.com/rss.xml"
+      }
+    ]
+  },
   "footer": "Room for future footer content",
   "backgroundImage": "",
   "backgrounds": {
@@ -75,7 +81,6 @@
     "weather": ["Image2.jpg", "Image1.jpg"],
     "announcements": ["Image1.jpg", "Image2.jpg"],
     "news": ["Image2.jpg"],
-    "images": ["Image1.jpg"],
     "footer": ["Image1.jpg", "Image2.jpg"],
     "imageTime": 10
   }

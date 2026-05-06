@@ -20,7 +20,9 @@ describe('config.json', () => {
     expect(Array.isArray(config.announcements.items)).toBe(true);
   });
 
-  test('has images array', () => {
-    expect(Array.isArray(config.images.items)).toBe(true);
+  test('has comics config', () => {
+    expect(config.comics).toBeDefined();
+    expect(Array.isArray(config.comics.feeds)).toBe(true);
+    expect(config.comics.feeds.length).toBeGreaterThan(0);
   });
 });
