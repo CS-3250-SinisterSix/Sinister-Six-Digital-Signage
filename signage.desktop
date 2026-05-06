@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Digital Signage
+Comment=Launch digital signage dashboard in kiosk mode
+Exec=/home/pi/Sinister-Six-Digital-Signage/start-signage.sh
+Terminal=false
+X-GNOME-Autostart-enabled=true
