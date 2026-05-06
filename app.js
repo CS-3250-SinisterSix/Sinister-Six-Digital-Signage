@@ -25,6 +25,36 @@
   });
 })();
 
+// ================= THEME TOGGLE =================
+
+(function () {
+  const themes = ['dark', 'light'];
+  const themeLabels = {
+    dark: 'Dark',
+    light: 'Light',
+  
+  };
+  const body = document.body;
+  const button = document.getElementById('theme-btn');
+
+  function applyTheme(theme) {
+    body.classList.remove('theme-light', 'theme-branded');
+    if (theme === 'light') body.classList.add('theme-light');
+    const next = themes[(themes.indexOf(theme) + 1) % themes.length];
+    button.textContent = `Switch to ${themeLabels[next]}`;
+  }
+
+  const saved = localStorage.getItem('theme') || 'dark';
+  applyTheme(saved);
+
+  button.addEventListener('click', function () {
+    const current = localStorage.getItem('theme') || 'dark';
+    const next = themes[(themes.indexOf(current) + 1) % themes.length];
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+  });
+})();
+
 // ================= GENERIC CONTENT CYCLER =================
 
 /**
@@ -81,6 +111,15 @@ async function loadConfig() {
     }
 
     const config = await response.json();
+
+    // Apply theme from config (only if no user preference saved)
+    if (config.theme && !localStorage.getItem('theme')) {
+      localStorage.setItem('theme', config.theme);
+      const themeBtn = document.getElementById('theme-btn');
+      if (themeBtn) {
+        themeBtn.click(); // triggers applyTheme via the button listener
+      }
+    }
 
     // Update title
     document.getElementById('title').textContent = config.title;
