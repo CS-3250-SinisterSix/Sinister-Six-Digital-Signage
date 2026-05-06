@@ -117,10 +117,8 @@ async function loadConfig() {
           el.style.backgroundRepeat = 'no-repeat';
         };
 
-        // initial image
         applyImage();
 
-        // rotate images
         setInterval(() => {
           index = (index + 1) % images.length;
           applyImage();
@@ -131,7 +129,6 @@ async function loadConfig() {
       startSlideshow('.weather-panel', config.backgrounds.weather);
       startSlideshow('.announcements-panel', config.backgrounds.announcements);
       startSlideshow('.news-panel', config.backgrounds.news);
-      startSlideshow('.images-panel', config.backgrounds.images);
       startSlideshow('.footer', config.backgrounds.footer);
     }
 
@@ -169,42 +166,23 @@ async function loadConfig() {
       }
     }
 
-    // Start image cycling
-    if (config.images && config.images.enabled && config.images.items) {
-      const items = config.images.items;
-      const cycle = config.images.cycle || 10;
+    // Start event countdown
+    if (config.events && config.events.enabled && config.events.items) {
+      const eventItems = config.events.items;
+      const eventCycle = config.events.cycle || 10;
 
-      if (items.length > 0) {
-        startCycler(
-          'images-container',
-          items,
-          function (item) {
-            const wrapper = document.createElement('div');
-
-            const img = document.createElement('img');
-            img.src = item.url;
-            img.alt = item.caption || 'Signage image';
-            img.onerror = function () {
-              img.style.display = 'none';
-              const fallback = document.createElement('p');
-              fallback.className = 'error-message';
-              fallback.textContent = 'Image not found';
-              wrapper.appendChild(fallback);
-            };
-            wrapper.appendChild(img);
-
-            if (item.caption) {
-              const caption = document.createElement('p');
-              caption.className = 'image-caption';
-              caption.textContent = item.caption;
-              wrapper.appendChild(caption);
-            }
-
-            return wrapper;
-          },
-          cycle
-        );
+      if (eventItems.length > 0) {
+        startEventCountdown('events-container', eventItems, eventCycle);
       }
+    }
+
+    // Start comic strip cycling
+    if (config.comics && config.comics.enabled) {
+      fetchComics(
+        config.comics.feeds || [],
+        config.comics.maxItems || 5,
+        config.comics.cycle || 15
+      );
     }
   } catch (error) {
     console.error('Config error:', error);
@@ -390,7 +368,6 @@ async function fetchWeather() {
     let location;
     let WEATHER_LOCATION;
     if (document.getElementById('Geolocation').checked) {
-      //coords = await getGeoCoords();
       await getGeoCoords();
       coords = JSON.parse(localStorage.getItem('geoCoords'));
 
@@ -598,15 +575,289 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
   }
 }
 
+// ================= EVENT COUNTDOWN =================
+
+function startEventCountdown(containerId, events, cycleSec) {
+  const container = document.getElementById(containerId);
+  let index = 0;
+  let tickInterval = null;
+
+  function calcRemaining(targetDate) {
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+      return null;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    return { days: days, hours: hours, minutes: minutes, seconds: seconds };
+  }
+
+  function renderCountdown(event) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'countdown-wrapper';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'countdown-event-name';
+    nameEl.textContent = event.name;
+    wrapper.appendChild(nameEl);
+
+    const target = new Date(event.date);
+    const remaining = calcRemaining(target);
+
+    if (!remaining) {
+      const passed = document.createElement('div');
+      passed.className = 'countdown-passed';
+      passed.textContent = 'Event started!';
+      wrapper.appendChild(passed);
+    } else {
+      const digits = document.createElement('div');
+      digits.className = 'countdown-digits';
+
+      var units = [
+        { value: remaining.days, label: 'Days' },
+        { value: remaining.hours, label: 'Hours' },
+        { value: remaining.minutes, label: 'Minutes' },
+        { value: remaining.seconds, label: 'Seconds' },
+      ];
+
+      units.forEach(function (unit) {
+        const unitEl = document.createElement('div');
+        unitEl.className = 'countdown-unit';
+
+        const valEl = document.createElement('div');
+        valEl.className = 'countdown-value';
+        valEl.textContent = String(unit.value).padStart(2, '0');
+        unitEl.appendChild(valEl);
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'countdown-label';
+        labelEl.textContent = unit.label;
+        unitEl.appendChild(labelEl);
+
+        digits.appendChild(unitEl);
+      });
+
+      wrapper.appendChild(digits);
+    }
+
+    return wrapper;
+  }
+
+  function updateTick() {
+    const wrapper = container.querySelector('.countdown-wrapper');
+    if (!wrapper) return;
+
+    const event = events[index];
+    const target = new Date(event.date);
+    const remaining = calcRemaining(target);
+
+    const digits = wrapper.querySelector('.countdown-digits');
+    if (!digits) return;
+
+    if (!remaining) {
+      wrapper.innerHTML = '';
+      const nameEl = document.createElement('div');
+      nameEl.className = 'countdown-event-name';
+      nameEl.textContent = event.name;
+      wrapper.appendChild(nameEl);
+      const passed = document.createElement('div');
+      passed.className = 'countdown-passed';
+      passed.textContent = 'Event started!';
+      wrapper.appendChild(passed);
+      return;
+    }
+
+    const values = digits.querySelectorAll('.countdown-value');
+    values[0].textContent = String(remaining.days).padStart(2, '0');
+    values[1].textContent = String(remaining.hours).padStart(2, '0');
+    values[2].textContent = String(remaining.minutes).padStart(2, '0');
+    values[3].textContent = String(remaining.seconds).padStart(2, '0');
+  }
+
+  function show() {
+    container.innerHTML = '';
+    const el = renderCountdown(events[index]);
+    container.appendChild(el);
+  }
+
+  function next() {
+    const current = container.querySelector('.countdown-wrapper');
+    if (current) {
+      current.classList.add('fade-out');
+    }
+
+    setTimeout(function () {
+      index = (index + 1) % events.length;
+      show();
+    }, 800);
+  }
+
+  show();
+  tickInterval = setInterval(updateTick, 1000);
+  const cycleInterval = setInterval(next, cycleSec * 1000);
+
+  return {
+    stop: function () {
+      clearInterval(tickInterval);
+      clearInterval(cycleInterval);
+    },
+  };
+}
+
+// ================= COMIC STRIP =================
+
+/**
+ * Extracts the first <img src> from an HTML string (RSS description fields).
+ *
+ * @param {string} html - Raw HTML string
+ * @returns {string|null} Image URL or null
+ */
+function extractImgFromDescription(html) {
+  if (!html) return null;
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : null;
+}
+
+/**
+ * Fetches comics from one or more webcomic RSS feeds and cycles through them.
+ *
+ * @param {Array} feeds - Array of { name, url } feed objects
+ * @param {number} maxItems - Max comics to show per feed
+ * @param {number} cycleSec - Seconds between comic rotations
+ */
+async function fetchComics(feeds, maxItems, cycleSec) {
+  const container = document.getElementById('comics-container');
+
+  try {
+    let comicItems = [];
+
+    for (const feed of feeds) {
+      try {
+        console.log('Trying comic feed:', feed.name);
+
+        const proxyUrls = [
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feed.url)}`,
+        ];
+
+        let xmlText = null;
+
+        for (const proxyUrl of proxyUrls) {
+          try {
+            const response = await fetchWithTimeout(proxyUrl, 5000);
+            if (!response.ok) throw new Error('Bad response');
+            xmlText = await response.text();
+            if (xmlText && xmlText.length > 0) break;
+          } catch (err) {
+            console.warn('Comic proxy failed:', proxyUrl, err);
+          }
+        }
+
+        if (!xmlText) throw new Error('All proxies failed for ' + feed.name);
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+        const parseError = xmlDoc.querySelector('parsererror');
+        if (parseError) throw new Error('Invalid RSS XML for ' + feed.name);
+
+        const items = xmlDoc.querySelectorAll('item');
+
+        const parsed = Array.from(items)
+          .slice(0, maxItems)
+          .map(function (item) {
+            const imgUrl =
+              item
+                .querySelector('media\\:content, content')
+                ?.getAttribute('url') ||
+              item
+                .querySelector('media\\:thumbnail, thumbnail')
+                ?.getAttribute('url') ||
+              item.querySelector('enclosure')?.getAttribute('url') ||
+              extractImgFromDescription(
+                item.querySelector('description')?.textContent
+              ) ||
+              null;
+
+            return {
+              title: item.querySelector('title')?.textContent || 'No title',
+              img: imgUrl,
+              source: feed.name,
+            };
+          })
+          .filter((item) => item.img !== null);
+
+        if (parsed.length > 0) {
+          comicItems = comicItems.concat(parsed);
+          console.log(`Got ${parsed.length} comics from ${feed.name}`);
+        }
+      } catch (err) {
+        console.warn('Comic feed failed:', feed.name, err);
+      }
+    }
+
+    if (comicItems.length === 0) {
+      throw new Error('No comic images found from any feed');
+    }
+
+    startCycler(
+      'comics-container',
+      comicItems,
+      function (item) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'comic-item';
+
+        const img = document.createElement('img');
+        img.className = 'comic-img';
+        img.src = item.img;
+        img.alt = item.title;
+        img.onerror = function () {
+          img.style.display = 'none';
+          const fallback = document.createElement('p');
+          fallback.className = 'error-message';
+          fallback.textContent = 'Comic unavailable';
+          wrapper.appendChild(fallback);
+        };
+        wrapper.appendChild(img);
+
+        const title = document.createElement('p');
+        title.className = 'comic-title';
+        title.textContent = item.title;
+        wrapper.appendChild(title);
+
+        const source = document.createElement('p');
+        source.className = 'comic-source-label';
+        source.textContent = item.source;
+        wrapper.appendChild(source);
+
+        return wrapper;
+      },
+      cycleSec
+    );
+  } catch (error) {
+    console.error('Comics error:', error);
+    if (container) {
+      container.innerHTML = '<p class="error-message">Comics unavailable</p>';
+    }
+  }
+}
+
 // ================= RUN APP =================
 
 updateClock();
 setInterval(updateClock, 1000);
 
 fetchWeather();
-setTimeout(fetchWeather, 5000); // Initial weather fetch after 5 seconds
 setTimeout(fetchWeather, 5000);
-setInterval(fetchWeather, 5 * 60 * 1000); // Refresh weather every 5 minutes
+setInterval(fetchWeather, 5 * 60 * 1000);
 
 if (!document.getElementById('Geolocation').checked) {
   document.getElementById('submitBtn').addEventListener('click', handleSubmit);
@@ -614,7 +865,7 @@ if (!document.getElementById('Geolocation').checked) {
 
 async function handleUpdate() {
   fetchWeather();
-  setTimeout(fetchWeather, 5000); // Fetch weather again after 5 seconds to allow geolocation to update
+  setTimeout(fetchWeather, 5000);
 }
 
 if (document.getElementById('Geolocation').checked) {
