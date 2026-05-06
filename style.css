@@ -189,8 +189,8 @@ h2 {
   align-items: center;
   font-size: 1rem;
   margin: 5px;
-  background-color: black;
-  color: white;
+  background-color: var(--input-bg);
+  color: var(--input-color);
 }
 
 .compass-container {
@@ -206,8 +206,8 @@ h2 {
   position: relative;
   width: 175px;
   height: 175px;
-  border: 5px solid white;
-  background-color: black;
+  border: 5px solid var(--input-color);
+  background-color: var(--input-bg);
   border-radius: 50%;
   margin: auto;
   display: inline-flex;
@@ -232,8 +232,8 @@ h2 {
   position: absolute;
   width: 70px;
   height: 70px;
-  border: 2px solid white;
-  background-color: black;
+  border: 2px solid var(--input-color);
+  background-color: var(--input-bg);
   border-radius: 50%;
 }
 
@@ -241,7 +241,7 @@ h2 {
   position: absolute;
   font-size: 1.1rem;
   font-weight: bold;
-  color: white;
+  color: var(--input-color);
 }
 
 .label-n {
@@ -251,7 +251,7 @@ h2 {
   transform: translateX(-50%);
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: var(--input-color);
 }
 
 .label-e {
@@ -261,7 +261,7 @@ h2 {
   transform: translateY(-50%);
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: var(--input-color);
   padding-right: 1px;
 }
 
@@ -272,7 +272,7 @@ h2 {
   transform: translateX(-50%);
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: var(--input-color);
 }
 
 .label-w {
@@ -282,7 +282,7 @@ h2 {
   transform: translateY(-50%);
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: var(--input-color);
   padding-left: 1px;
 }
 
