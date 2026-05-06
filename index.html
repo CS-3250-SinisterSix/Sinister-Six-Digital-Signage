@@ -28,6 +28,19 @@
         <div id="weather-condition" class="weather-condition">
           Fetching weather...
         </div>
+
+        <container class="compass-container">
+          <div class="compass-face">
+            <span class="label-n">N</span>
+            <span class="label-e">E</span>
+            <span class="label-s">S</span>
+            <span class="label-w">W</span>
+            <div class="arrow" id="arrow"></div>
+            <div class="wind-text-box"></div>
+            <div class="wind-text" id="wind-text">Wind Speed: Loading...</div>
+          </div>
+        </container>
+
         <label for="cityName">City:</label>
         <input
           type="text"
@@ -47,17 +60,6 @@
           onchange="handleUpdate()"
         />
         <label for="Geolocation">Use Geolocation</label>
-        <container class="compass-container">
-          <div class="compass-face">
-            <span class="label-n">N</span>
-            <span class="label-e">E</span>
-            <span class="label-s">S</span>
-            <span class="label-w">W</span>
-            <div class="arrow" id="arrow"></div>
-            <div class="wind-text-box"></div>
-            <div class="wind-text" id="wind-text">Wind Speed: Loading...</div>
-          </div>
-        </container>
       </section>
 
       <section class="news-panel">

@@ -113,9 +113,11 @@ body {
 .weather-temp,
 .weather-humid,
 .weather-condition {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: bold;
   margin-top: 10px;
+  justify-content: center;
+  align-items: center;
 }
 
 h2 {
@@ -134,6 +136,23 @@ h2 {
   border: none;
   padding: 10px 20px;
   margin-right: 10px;
+}
+
+.cityName {
+  font-size: 1rem;
+  margin-top: 20px;
+  background-color: black;
+  color: white;
+}
+
+.compass-container {
+  position: relative;
+  width: 175px;
+  height: 175px;
+  margin: auto;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
 }
 
 .compass-face {
@@ -218,13 +237,6 @@ h2 {
   font-weight: bold;
   color: white;
   padding-left: 1px;
-}
-
-.cityName {
-  font-size: 1rem;
-  margin-top: 20px;
-  background-color: black;
-  color: white;
 }
 
 .weather-location {
