@@ -142,10 +142,12 @@ async function loadConfig() {
         sourceEl.textContent = config.rss.source;
       }
       fetchNews(
-  config.rss.sources || [{ name: config.rss.source, url: config.rss.url }],
-  config.rss.maxItems || 5,
-  config.rss.cycle || 6
-);
+        config.rss.sources || [
+          { name: config.rss.source, url: config.rss.url },
+        ],
+        config.rss.maxItems || 5,
+        config.rss.cycle || 6
+      );
     }
 
     // Start announcements cycling
@@ -240,7 +242,14 @@ function updateClock() {
 
 // ================= WEATHER DISPLAY =================
 
-function updateWeatherDisplay(location, temp, humidity, condition, windSpeed, windDirection) {
+function updateWeatherDisplay(
+  location,
+  temp,
+  humidity,
+  condition,
+  windSpeed,
+  windDirection
+) {
   const locationElement = document.getElementById('weather-location');
   const tempElement = document.getElementById('weather-temp');
   const humidityElement = document.getElementById('weather-humid');
@@ -414,11 +423,22 @@ async function fetchWeather() {
     const weatherCode = data.current.weather_code;
     const description = getWeatherDescription(weatherCode);
 
-
-    updateWeatherDisplay(locationDisplay, `${temperature}°F`, `${humidity}%`, description, windSpeed, windDirection);
+    updateWeatherDisplay(
+      locationDisplay,
+      `${temperature}°F`,
+      `${humidity}%`,
+      description,
+      windSpeed,
+      windDirection
+    );
   } catch (error) {
     console.error('Weather error:', error);
-    updateWeatherDisplay('Location unavailable', '--°F', '--%', 'Weather unavailable');
+    updateWeatherDisplay(
+      'Location unavailable',
+      '--°F',
+      '--%',
+      'Weather unavailable'
+    );
   }
 }
 
@@ -436,7 +456,6 @@ function fetchWithTimeout(url, timeoutMs = 5000) {
   });
 }
 
-
 async function fetchNews(rssSources, maxItems, cycleSec) {
   const sources = Array.isArray(rssSources) ? rssSources : [rssSources];
 
@@ -448,14 +467,14 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
         console.log('Trying RSS source:', source.name);
 
         const proxyUrls = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(source.url)}`
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(source.url)}`,
         ];
-        
+
         let xmlText = null;
 
-      for (const proxyUrl of proxyUrls) {
-        try {
+        for (const proxyUrl of proxyUrls) {
+          try {
             console.log('Trying proxy:', proxyUrl);
 
             const response = await fetchWithTimeout(proxyUrl, 5000);
@@ -468,16 +487,16 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
 
             if (xmlText && xmlText.length > 0) {
               console.log('Proxy success');
-            break;
+              break;
             }
           } catch (err) {
             console.warn('Proxy failed:', proxyUrl, err);
           }
         }
 
-      if (!xmlText) {
-        throw new Error('All proxies failed');
-      }
+        if (!xmlText) {
+          throw new Error('All proxies failed');
+        }
 
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
@@ -531,7 +550,9 @@ async function fetchNews(rssSources, maxItems, cycleSec) {
       newsItems,
       function (item) {
         const wrapper = document.createElement('div');
-        wrapper.className = item.thumbnail ? 'news-item' : 'news-item no-thumbnail';
+        wrapper.className = item.thumbnail
+          ? 'news-item'
+          : 'news-item no-thumbnail';
 
         if (item.thumbnail) {
           const img = document.createElement('img');
