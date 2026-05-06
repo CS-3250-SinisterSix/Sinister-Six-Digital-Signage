@@ -25,3 +25,18 @@ describe('index.html structure', () => {
     expect(document.querySelector('.date')).not.toBeNull();
   });
 });
+
+test('has theme button required by app.js', () => {
+  expect(document.getElementById('theme-btn')).not.toBeNull();
+});
+
+test('has updated weather elements required by app.js', () => {
+  expect(document.getElementById('weather-humid')).not.toBeNull();
+  expect(document.getElementById('wind-text')).not.toBeNull();
+  expect(document.querySelector('.arrow')).not.toBeNull();
+});
+
+test('has event and comics containers required by app.js', () => {
+  expect(document.getElementById('events-container')).not.toBeNull();
+  expect(document.getElementById('comics-container')).not.toBeNull();
+});
