@@ -10,19 +10,7 @@
     <div class="dashboard landscape" id="dashboard">
       <header class="header">
         <h1 id="title">Computer Science Department</h1>
-        <label for="cityName">City:</label>
-        <input type="text" id="cityName" name="cityName" /><br /><br />
-        <button id="submitBtn" class="submitBtn" onclick="handleSubmit()">
-          Update
-        </button>
-        <input
-          type="checkbox"
-          id="Geolocation"
-          name="Geolocation"
-          checked
-          onchange="handleUpdate()"
-        />
-        <label for="Geolocation">Use Geolocation</label>
+        
       </header>
 
       <section class="clock-panel">
@@ -37,9 +25,36 @@
           Loading location...
         </div>
         <div id="weather-temp" class="weather-temp">Loading...</div>
+        <div id="weather-humid" class="weather-humid">Loading...</div>
         <div id="weather-condition" class="weather-condition">
           Fetching weather...
         </div>
+        <label for="cityName">City:</label>
+        <input type="text" class="cityName" id="cityName" name="cityName" /><br /><br />
+        <button id="submitBtn" class="submitBtn" onclick="handleSubmit()">
+          Update
+        </button>
+        <input
+          type="checkbox"
+          class="Geolocation"
+          id="Geolocation"
+          name="Geolocation"
+          checked
+          onchange="handleUpdate()"
+        />
+        <label for="Geolocation">Use Geolocation</label>
+        <container class="compass-container">
+          <div class="compass-face">
+          <span class="label-n">N</span>
+          <span class="label-e">E</span>
+          <span class="label-s">S</span>
+          <span class="label-w">W</span>
+          <div class="arrow" id="arrow"></div>
+          <div class="wind-text-box"></div>
+          <div class="wind-text" id="wind-text">Wind Speed: Loading...</div>
+          </container>
+      </div>
+    </div>
       </section>
 
       <section class="news-panel">
