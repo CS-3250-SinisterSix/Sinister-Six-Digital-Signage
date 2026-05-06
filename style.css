@@ -136,15 +136,6 @@ h2 {
   margin-right: 10px;
 }
 
-.compass-container {
-  position: relative;
-  float: right;
-  top: -50%;
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-}
-
 .compass-face {
   position: relative;
   width: 175px;
