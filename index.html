@@ -40,7 +40,8 @@
             <div class="wind-text" id="wind-text">Wind Speed: Loading...</div>
           </div>
         </container>
-
+        
+        <div class="city-controls">
         <label for="cityName">City:</label>
         <input
           type="text"
@@ -48,6 +49,7 @@
           id="cityName"
           name="cityName"
         /><br /><br />
+        </div>
         <button id="submitBtn" class="submitBtn" onclick="handleSubmit()">
           Update
         </button>
@@ -60,6 +62,7 @@
           onchange="handleUpdate()"
         />
         <label for="Geolocation">Use Geolocation</label>
+        
       </section>
 
       <section class="news-panel">
