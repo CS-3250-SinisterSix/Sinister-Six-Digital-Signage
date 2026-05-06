@@ -32,7 +32,6 @@
   const themeLabels = {
     dark: 'Dark',
     light: 'Light',
-  
   };
   const body = document.body;
   const button = document.getElementById('theme-btn');
@@ -111,6 +110,10 @@ async function loadConfig() {
     }
 
     const config = await response.json();
+
+    if (config.weather && config.weather.location) {
+      configWeatherLocation = config.weather.location;
+    }
 
     // Apply theme from config (only if no user preference saved)
     if (config.theme && !localStorage.getItem('theme')) {
@@ -315,6 +318,8 @@ function getWeatherDescription(code) {
   return weatherCodes[code] || 'Unknown weather';
 }
 
+var configWeatherLocation = null;
+
 // ================= WEATHER FETCH =================
 
 async function handleSubmit() {
@@ -416,7 +421,14 @@ async function fetchWeather() {
         ? `${location.city}, ${location.principalSubdivision}, ${location.countryCode}`
         : `${location.city}, ${location.countryCode}`;
     } else {
-      WEATHER_LOCATION = JSON.parse(localStorage.getItem('weatherCity')).city;
+      const stored = localStorage.getItem('weatherCity');
+      if (stored) {
+        WEATHER_LOCATION = JSON.parse(stored).city;
+      } else if (configWeatherLocation) {
+        WEATHER_LOCATION = configWeatherLocation;
+      } else {
+        throw new Error('No weather location configured');
+      }
       coords = await getCoordinates(WEATHER_LOCATION);
 
       locationDisplay = coords.admin1
@@ -892,23 +904,16 @@ async function fetchComics(feeds, maxItems, cycleSec) {
 updateClock();
 setInterval(updateClock, 1000);
 
-fetchWeather();
-setTimeout(fetchWeather, 5000);
-setInterval(fetchWeather, 5 * 60 * 1000);
-
-if (!document.getElementById('Geolocation').checked) {
-  document.getElementById('submitBtn').addEventListener('click', handleSubmit);
-}
-
 async function handleUpdate() {
   fetchWeather();
   setTimeout(fetchWeather, 5000);
 }
 
-if (document.getElementById('Geolocation').checked) {
-  document
-    .getElementById('Geolocation')
-    .addEventListener('change', handleUpdate);
-}
+document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+document.getElementById('Geolocation').addEventListener('change', handleUpdate);
 
-loadConfig();
+loadConfig().then(() => {
+  fetchWeather();
+  setTimeout(fetchWeather, 5000);
+  setInterval(fetchWeather, 5 * 60 * 1000);
+});

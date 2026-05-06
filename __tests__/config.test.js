@@ -20,6 +20,12 @@ describe('config.json', () => {
     expect(Array.isArray(config.announcements.items)).toBe(true);
   });
 
+  test('has weather location configured', () => {
+    expect(config.weather).toBeDefined();
+    expect(typeof config.weather.location).toBe('string');
+    expect(config.weather.location.length).toBeGreaterThan(0);
+  });
+
   test('has comics config', () => {
     expect(config.comics).toBeDefined();
     expect(Array.isArray(config.comics.feeds)).toBe(true);
